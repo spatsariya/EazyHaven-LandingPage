@@ -5,7 +5,7 @@ html {
 }
 
 .hero-gradient {
-    background: linear-gradient(to right, #0f172a, #1e293b, #334155);
+    background: linear-gradient(to right, #1e1c19, #2c2822, #3d3a34);
 }
 
 .zoom-effect {
@@ -14,29 +14,29 @@ html {
 
 .zoom-effect:hover {
     transform: scale(1.05);
-    box-shadow: 0 10px 25px rgba(201, 65, 220, 0.4);
+    box-shadow: 0 10px 25px rgba(201, 177, 143, 0.4);
 }
 
 .glow {
-    text-shadow: 0 0 10px rgba(216, 80, 233, 0.6);
+    text-shadow: 0 0 10px rgba(230, 215, 195, 0.6);
 }
 
 .product-card {
-    background: rgba(30, 41, 59, 0.7);
+    background: rgba(44, 40, 34, 0.7);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(201, 65, 220, 0.2);
+    border: 1px solid rgba(201, 177, 143, 0.2);
 }
 
 .glass-card {
-    background: rgba(15, 23, 42, 0.7);
+    background: rgba(30, 28, 25, 0.7);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(201, 65, 220, 0.2);
+    border: 1px solid rgba(201, 177, 143, 0.2);
 }
 
 .neon-border {
-    box-shadow: 0 0 5px rgba(201, 65, 220, 0.3),
-                0 0 10px rgba(201, 65, 220, 0.2),
-                inset 0 0 5px rgba(201, 65, 220, 0.1);
+    box-shadow: 0 0 5px rgba(201, 177, 143, 0.3),
+                0 0 10px rgba(201, 177, 143, 0.2),
+                inset 0 0 5px rgba(201, 177, 143, 0.1);
 }
 
 .form-message {

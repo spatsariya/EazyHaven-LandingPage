@@ -45,7 +45,7 @@
                                   id="message" name="message" rows="4" placeholder="Your message" required></textarea>
                     </div>
                     <div class="text-center">
-                        <button type="submit" class="bg-brand text-white px-8 py-3 rounded-full font-semibold hover:bg-brand-light transition duration-300 neon-border">
+.                        <button type="submit" class="bg-brand-dark text-white px-8 py-3 rounded-full font-semibold hover:bg-brand transition duration-300 neon-border">
                             Send Message
                         </button>
                     </div>

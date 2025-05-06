@@ -18,14 +18,14 @@
                 extend: {
                     colors: {
                         brand: {
-                            light: '#d946ef',
-                            DEFAULT: '#c026d3',
-                            dark: '#86198f',
+                            light: '#f0e6d2',
+                            DEFAULT: '#e6d7c3',
+                            dark: '#c9b18f',
                         },
                         dark: {
-                            light: '#1e293b',
-                            DEFAULT: '#0f172a',
-                            dark: '#020617',
+                            light: '#2c2822',
+                            DEFAULT: '#1e1c19',
+                            dark: '#0f0e0c',
                         }
                     },
                     fontFamily: {
