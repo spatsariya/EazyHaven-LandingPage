@@ -7,24 +7,6 @@ document.addEventListener('DOMContentLoaded', function() {
         mobileMenu.classList.toggle('hidden');
     });
 
-    // Set up CAPTCHA for contact form
-    function setupCaptcha() {
-        const num1 = Math.floor(Math.random() * 10) + 1;
-        const num2 = Math.floor(Math.random() * 10) + 1;
-        
-        document.getElementById('captcha-num1').textContent = num1;
-        document.getElementById('captcha-num2').textContent = num2;
-        
-        // Store the sum for verification
-        return num1 + num2;
-    }
-    
-    // Set up initial CAPTCHA values
-    let captchaSum = 0;
-    if (document.getElementById('contactForm')) {
-        captchaSum = setupCaptcha();
-    }
-
     // Contact form handling with custom AJAX submission
     const contactForm = document.getElementById('contactForm');
     if (contactForm) {
@@ -36,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const email = document.getElementById('email').value;
             const subject = document.getElementById('subject').value;
             const message = document.getElementById('message').value;
-            const captchaValue = parseInt(document.getElementById('captcha').value);
+            const hcaptchaResponse = document.querySelector('textarea[name="h-captcha-response"]').value;
             
             // Form validation
             if (!name || !email || !message) {
@@ -49,11 +31,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-            // CAPTCHA validation
-            if (captchaValue !== captchaSum) {
-                showContactMessage('Incorrect human verification answer. Please try again.', 'error');
-                captchaSum = setupCaptcha(); // Refresh CAPTCHA
-                document.getElementById('captcha').value = '';
+            // hCaptcha validation
+            if (!hcaptchaResponse) {
+                showContactMessage('Please complete the CAPTCHA verification.', 'error');
                 return;
             }
             
@@ -69,6 +49,7 @@ document.addEventListener('DOMContentLoaded', function() {
             formData.append('email', email);
             formData.append('subject', subject);
             formData.append('message', message);
+            formData.append('h-captcha-response', hcaptchaResponse);
             
             // Use fetch API to submit form
             fetch('process-contact.php', {
@@ -80,7 +61,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.status === 'success') {
                     showContactMessage(data.message, 'success');
                     contactForm.reset();
-                    captchaSum = setupCaptcha(); // Refresh CAPTCHA
+                    
+                    // Reset hCaptcha
+                    if (typeof hcaptcha !== 'undefined') {
+                        hcaptcha.reset();
+                    }
                     
                     // Redirect to thank you page after a brief delay
                     setTimeout(() => {
@@ -88,13 +73,21 @@ document.addEventListener('DOMContentLoaded', function() {
                     }, 2000);
                 } else {
                     showContactMessage(data.message || 'There was an error sending your message.', 'error');
-                    captchaSum = setupCaptcha(); // Refresh CAPTCHA
+                    
+                    // Reset hCaptcha
+                    if (typeof hcaptcha !== 'undefined') {
+                        hcaptcha.reset();
+                    }
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
                 showContactMessage('There was an error sending your message. Please try again later.', 'error');
-                captchaSum = setupCaptcha(); // Refresh CAPTCHA
+                
+                // Reset hCaptcha
+                if (typeof hcaptcha !== 'undefined') {
+                    hcaptcha.reset();
+                }
             })
             .finally(() => {
                 // Re-enable the submit button

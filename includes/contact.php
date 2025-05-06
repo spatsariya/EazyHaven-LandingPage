@@ -35,12 +35,10 @@
                         <textarea class="w-full bg-dark-light border border-brand-dark border-opacity-50 p-3 rounded-lg focus:outline-none focus:border-brand text-white" 
                                   id="message" name="message" rows="4" placeholder="Your message" required></textarea>
                     </div>
-                    <!-- Simple Math CAPTCHA for Human Authentication -->
+                    <!-- hCaptcha for Human Authentication -->
                     <div class="mb-6">
-                        <label class="block text-sm font-medium mb-2 text-gray-300" for="captcha">Human Verification: What is 
-                            <span id="captcha-num1">3</span> + <span id="captcha-num2">4</span>?</label>
-                        <input class="w-full bg-dark-light border border-brand-dark border-opacity-50 p-3 rounded-lg focus:outline-none focus:border-brand text-white" 
-                               type="number" id="captcha" name="captcha" placeholder="Enter the answer" required>
+                        <label class="block text-sm font-medium mb-2 text-gray-300">Human Verification</label>
+                        <div class="h-captcha" data-sitekey="03f6f79e-8f76-42a4-8fa6-36fcf356378c"></div>
                     </div>
                     <div class="text-center">
                         <button type="submit" id="submitButton" class="bg-brand-dark text-white px-8 py-3 rounded-full font-semibold hover:bg-brand transition duration-300 neon-border">
@@ -56,4 +54,6 @@
             </div>
         </div>
     </div>
+    <!-- Include hCaptcha script -->
+    <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
 </section>

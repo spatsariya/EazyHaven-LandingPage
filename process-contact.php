@@ -13,6 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = filter_var($_POST['email'] ?? '', FILTER_SANITIZE_EMAIL);
     $subject = filter_var($_POST['subject'] ?? 'Contact Form Submission', FILTER_SANITIZE_STRING);
     $message = filter_var($_POST['message'] ?? '', FILTER_SANITIZE_STRING);
+    $hcaptchaResponse = $_POST['h-captcha-response'] ?? '';
     
     // Validate form data
     if (empty($name) || empty($email) || empty($message)) {
@@ -24,6 +25,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         http_response_code(400);
         echo json_encode(['status' => 'error', 'message' => 'Invalid email address']);
+        exit;
+    }
+
+    // Verify hCaptcha
+    if (empty($hcaptchaResponse)) {
+        http_response_code(400);
+        echo json_encode(['status' => 'error', 'message' => 'Please complete the CAPTCHA verification']);
+        exit;
+    }
+
+    // hCaptcha verification request
+    $hcaptchaSecretKey = 'ES_dba4b289340e45ea8a7bca4bc297a086'; // Your hCaptcha secret key
+    $verifyUrl = 'https://hcaptcha.com/siteverify';
+    
+    $data = [
+        'secret' => $hcaptchaSecretKey,
+        'response' => $hcaptchaResponse,
+        'remoteip' => $_SERVER['REMOTE_ADDR']
+    ];
+
+    $options = [
+        'http' => [
+            'header' => "Content-type: application/x-www-form-urlencoded\r\n",
+            'method' => 'POST',
+            'content' => http_build_query($data)
+        ]
+    ];
+
+    $context = stream_context_create($options);
+    $verifyResponse = file_get_contents($verifyUrl, false, $context);
+    $responseData = json_decode($verifyResponse);
+
+    // If hCaptcha verification fails
+    if (!$responseData->success) {
+        http_response_code(400);
+        echo json_encode(['status' => 'error', 'message' => 'CAPTCHA verification failed. Please try again.']);
         exit;
     }
     
