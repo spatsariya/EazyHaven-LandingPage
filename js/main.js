@@ -7,48 +7,173 @@ document.addEventListener('DOMContentLoaded', function() {
         mobileMenu.classList.toggle('hidden');
     });
 
-    // Contact form handling
+    // Set up CAPTCHA for contact form
+    function setupCaptcha() {
+        const num1 = Math.floor(Math.random() * 10) + 1;
+        const num2 = Math.floor(Math.random() * 10) + 1;
+        
+        document.getElementById('captcha-num1').textContent = num1;
+        document.getElementById('captcha-num2').textContent = num2;
+        
+        // Store the sum for verification
+        return num1 + num2;
+    }
+    
+    // Set up initial CAPTCHA values
+    let captchaSum = 0;
+    if (document.getElementById('contactForm')) {
+        captchaSum = setupCaptcha();
+    }
+
+    // Contact form handling with custom AJAX submission
     const contactForm = document.getElementById('contactForm');
-    contactForm.addEventListener('submit', function(e) {
-        // Form submission is handled by FormSubmit.co service
-        // No need to prevent default here as we're using a real form submission
-    });
+    if (contactForm) {
+        contactForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form elements
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const subject = document.getElementById('subject').value;
+            const message = document.getElementById('message').value;
+            const captchaValue = parseInt(document.getElementById('captcha').value);
+            
+            // Form validation
+            if (!name || !email || !message) {
+                showContactMessage('Please fill in all required fields.', 'error');
+                return;
+            }
+            
+            if (!validateEmail(email)) {
+                showContactMessage('Please enter a valid email address.', 'error');
+                return;
+            }
+            
+            // CAPTCHA validation
+            if (captchaValue !== captchaSum) {
+                showContactMessage('Incorrect human verification answer. Please try again.', 'error');
+                captchaSum = setupCaptcha(); // Refresh CAPTCHA
+                document.getElementById('captcha').value = '';
+                return;
+            }
+            
+            // Disable the submit button and show loading state
+            const submitButton = document.getElementById('submitButton');
+            const originalButtonText = submitButton.textContent;
+            submitButton.disabled = true;
+            submitButton.textContent = 'Sending...';
+            
+            // Create FormData object
+            const formData = new FormData();
+            formData.append('name', name);
+            formData.append('email', email);
+            formData.append('subject', subject);
+            formData.append('message', message);
+            
+            // Use fetch API to submit form
+            fetch('process-contact.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    showContactMessage(data.message, 'success');
+                    contactForm.reset();
+                    captchaSum = setupCaptcha(); // Refresh CAPTCHA
+                    
+                    // Redirect to thank you page after a brief delay
+                    setTimeout(() => {
+                        window.location.href = 'thank-you.html';
+                    }, 2000);
+                } else {
+                    showContactMessage(data.message || 'There was an error sending your message.', 'error');
+                    captchaSum = setupCaptcha(); // Refresh CAPTCHA
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showContactMessage('There was an error sending your message. Please try again later.', 'error');
+                captchaSum = setupCaptcha(); // Refresh CAPTCHA
+            })
+            .finally(() => {
+                // Re-enable the submit button
+                submitButton.disabled = false;
+                submitButton.textContent = originalButtonText;
+            });
+        });
+    }
+    
+    // Contact form message display function
+    function showContactMessage(message, type) {
+        const formStatus = document.getElementById('formStatus');
+        const successMsg = document.getElementById('successMsg');
+        const errorMsg = document.getElementById('errorMsg');
+        
+        // Hide both messages first
+        successMsg.classList.add('hidden');
+        errorMsg.classList.add('hidden');
+        
+        // Show the appropriate message
+        if (type === 'success') {
+            successMsg.textContent = message;
+            successMsg.classList.remove('hidden');
+        } else {
+            errorMsg.textContent = message;
+            errorMsg.classList.remove('hidden');
+        }
+        
+        // Show the container
+        formStatus.classList.remove('hidden');
+        
+        // Hide the message after 5 seconds if it's an error
+        if (type === 'error') {
+            setTimeout(() => {
+                formStatus.classList.add('hidden');
+            }, 5000);
+        }
+    }
 
     // Newsletter form handling with AJAX
     const newsletterForm = document.getElementById('newsletterForm');
     const newsletterMessage = document.getElementById('newsletterMessage');
     
-    newsletterForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const email = document.getElementById('newsletterEmail').value;
-        
-        // Email validation
-        if (!email || !validateEmail(email)) {
-            showMessage(newsletterMessage, 'Please enter a valid email address.', 'error');
-            return;
-        }
-        
-        // AJAX request to handle the newsletter subscription
-        const formData = new FormData();
-        formData.append('email', email);
-        formData.append('timestamp', new Date().toISOString());
-        
-        // Use fetch API to submit form
-        fetch('subscribe.php', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => {
-            // For demo purposes, simulate success
-            // In production, you would check the actual response
-            showMessage(newsletterMessage, 'Thank you for subscribing to our newsletter!', 'success');
-            newsletterForm.reset();
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showMessage(newsletterMessage, 'There was an error. Please try again later.', 'error');
+    if (newsletterForm) {
+        newsletterForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('newsletterEmail').value;
+            
+            // Email validation
+            if (!email || !validateEmail(email)) {
+                showMessage(newsletterMessage, 'Please enter a valid email address.', 'error');
+                return;
+            }
+            
+            // AJAX request to handle the newsletter subscription
+            const formData = new FormData();
+            formData.append('email', email);
+            formData.append('timestamp', new Date().toISOString());
+            
+            // Use fetch API to submit form
+            fetch('subscribe.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    showMessage(newsletterMessage, data.message || 'Thank you for subscribing to our newsletter!', 'success');
+                    newsletterForm.reset();
+                } else {
+                    showMessage(newsletterMessage, data.message || 'There was an error. Please try again later.', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessage(newsletterMessage, 'There was an error. Please try again later.', 'error');
+            });
         });
-    });
+    }
     
     // Email validation function
     function validateEmail(email) {

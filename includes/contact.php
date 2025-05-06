@@ -12,28 +12,7 @@
         </div>
         <div class="max-w-3xl mx-auto">
             <div class="glass-card rounded-lg shadow-lg p-8 neon-border">
-                <form id="contactForm" action="https://formsubmit.co/contact@eazyhaven.com" method="POST">
-                    <!-- Honeypot to prevent spam -->
-                    <input type="text" name="_honey" style="display:none">
-                    
-                    <!-- Enable captcha for human authentication -->
-                    <input type="hidden" name="_captcha" value="true">
-                    
-                    <!-- Success page (redirect after submission) -->
-                    <input type="hidden" name="_next" value="thank-you.html">
-                    
-                    <!-- Subject for the email -->
-                    <input type="hidden" name="_subject" value="New contact form submission from EazyHaven website">
-                    
-                    <!-- Auto-response to user -->
-                    <input type="hidden" name="_autoresponse" value="Thank you for contacting EazyHaven! We have received your message and will get back to you as soon as possible.">
-                    
-                    <!-- CC to see all submissions -->
-                    <input type="hidden" name="_cc" value="support@eazyhaven.com">
-                    
-                    <!-- Template ID for custom email templates (optional) -->
-                    <input type="hidden" name="_template" value="box">
-                    
+                <form id="contactForm" action="process-contact.php" method="POST">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                         <div>
                             <label class="block text-sm font-medium mb-2 text-gray-300" for="name">Full Name</label>
@@ -56,10 +35,22 @@
                         <textarea class="w-full bg-dark-light border border-brand-dark border-opacity-50 p-3 rounded-lg focus:outline-none focus:border-brand text-white" 
                                   id="message" name="message" rows="4" placeholder="Your message" required></textarea>
                     </div>
+                    <!-- Simple Math CAPTCHA for Human Authentication -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium mb-2 text-gray-300" for="captcha">Human Verification: What is 
+                            <span id="captcha-num1">3</span> + <span id="captcha-num2">4</span>?</label>
+                        <input class="w-full bg-dark-light border border-brand-dark border-opacity-50 p-3 rounded-lg focus:outline-none focus:border-brand text-white" 
+                               type="number" id="captcha" name="captcha" placeholder="Enter the answer" required>
+                    </div>
                     <div class="text-center">
-                        <button type="submit" class="bg-brand-dark text-white px-8 py-3 rounded-full font-semibold hover:bg-brand transition duration-300 neon-border">
+                        <button type="submit" id="submitButton" class="bg-brand-dark text-white px-8 py-3 rounded-full font-semibold hover:bg-brand transition duration-300 neon-border">
                             Send Message
                         </button>
+                    </div>
+                    <!-- Form status message -->
+                    <div id="formStatus" class="mt-4 text-center hidden">
+                        <p id="successMsg" class="text-green-400 hidden">Your message has been sent successfully! We'll get back to you soon.</p>
+                        <p id="errorMsg" class="text-red-400 hidden">There was an error sending your message. Please try again.</p>
                     </div>
                 </form>
             </div>
