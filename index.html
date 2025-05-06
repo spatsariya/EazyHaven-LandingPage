@@ -12,9 +12,14 @@
                 extend: {
                     colors: {
                         brand: {
-                            light: '#f8fafc',
-                            DEFAULT: '#f0abfc',
+                            light: '#d946ef',
+                            DEFAULT: '#c026d3',
                             dark: '#86198f',
+                        },
+                        dark: {
+                            light: '#1e293b',
+                            DEFAULT: '#0f172a',
+                            dark: '#020617',
                         }
                     },
                     fontFamily: {
@@ -32,47 +37,82 @@
         }
         
         .hero-gradient {
-            background-image: linear-gradient(45deg, #f0abfc, #e879f9, #c026d3);
+            background: linear-gradient(to right, #0f172a, #1e293b, #334155);
         }
         
         .zoom-effect {
-            transition: transform 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         
         .zoom-effect:hover {
             transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(201, 65, 220, 0.4);
+        }
+        
+        .glow {
+            text-shadow: 0 0 10px rgba(216, 80, 233, 0.6);
+        }
+        
+        .product-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(201, 65, 220, 0.2);
+        }
+        
+        .glass-card {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(201, 65, 220, 0.2);
+        }
+        
+        .neon-border {
+            box-shadow: 0 0 5px rgba(201, 65, 220, 0.3),
+                        0 0 10px rgba(201, 65, 220, 0.2),
+                        inset 0 0 5px rgba(201, 65, 220, 0.1);
+        }
+        
+        .form-message {
+            transition: all 0.3s ease;
+            max-height: 0;
+            overflow: hidden;
+        }
+        
+        .form-message.show {
+            max-height: 60px;
+            padding: 10px;
+            margin-top: 10px;
         }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans">
+<body class="bg-dark text-gray-200 font-sans">
     <!-- Navigation -->
-    <nav class="bg-white shadow-md fixed w-full z-50">
+    <nav class="bg-dark-dark bg-opacity-80 backdrop-blur-md shadow-md fixed w-full z-50 border-b border-brand-dark border-opacity-30">
         <div class="container mx-auto px-4 py-3">
             <div class="flex justify-between items-center">
                 <div class="flex items-center space-x-2">
-                    <i class="fas fa-leaf text-brand-dark text-2xl"></i>
-                    <h1 class="text-2xl font-bold text-brand-dark">EazyHaven</h1>
+                    <i class="fas fa-leaf text-brand text-2xl"></i>
+                    <h1 class="text-2xl font-bold text-white glow">EazyHaven</h1>
                 </div>
                 <div class="hidden md:flex space-x-8">
-                    <a href="#home" class="font-medium hover:text-brand-dark transition">Home</a>
-                    <a href="#products" class="font-medium hover:text-brand-dark transition">Products</a>
-                    <a href="#about" class="font-medium hover:text-brand-dark transition">About</a>
-                    <a href="#testimonials" class="font-medium hover:text-brand-dark transition">Testimonials</a>
-                    <a href="#contact" class="font-medium hover:text-brand-dark transition">Contact</a>
+                    <a href="#home" class="font-medium text-gray-300 hover:text-brand hover:glow transition duration-300">Home</a>
+                    <a href="#products" class="font-medium text-gray-300 hover:text-brand hover:glow transition duration-300">Products</a>
+                    <a href="#about" class="font-medium text-gray-300 hover:text-brand hover:glow transition duration-300">About</a>
+                    <a href="#testimonials" class="font-medium text-gray-300 hover:text-brand hover:glow transition duration-300">Testimonials</a>
+                    <a href="#contact" class="font-medium text-gray-300 hover:text-brand hover:glow transition duration-300">Contact</a>
                 </div>
                 <div class="md:hidden">
-                    <button id="menu-toggle" class="text-gray-500 hover:text-gray-700">
+                    <button id="menu-toggle" class="text-gray-300 hover:text-brand">
                         <i class="fas fa-bars text-xl"></i>
                     </button>
                 </div>
             </div>
             <!-- Mobile menu -->
             <div id="mobile-menu" class="md:hidden hidden mt-3 pb-2">
-                <a href="#home" class="block py-2 hover:text-brand-dark transition">Home</a>
-                <a href="#products" class="block py-2 hover:text-brand-dark transition">Products</a>
-                <a href="#about" class="block py-2 hover:text-brand-dark transition">About</a>
-                <a href="#testimonials" class="block py-2 hover:text-brand-dark transition">Testimonials</a>
-                <a href="#contact" class="block py-2 hover:text-brand-dark transition">Contact</a>
+                <a href="#home" class="block py-2 text-gray-300 hover:text-brand transition duration-300">Home</a>
+                <a href="#products" class="block py-2 text-gray-300 hover:text-brand transition duration-300">Products</a>
+                <a href="#about" class="block py-2 text-gray-300 hover:text-brand transition duration-300">About</a>
+                <a href="#testimonials" class="block py-2 text-gray-300 hover:text-brand transition duration-300">Testimonials</a>
+                <a href="#contact" class="block py-2 text-gray-300 hover:text-brand transition duration-300">Contact</a>
             </div>
         </div>
     </nav>
@@ -83,92 +123,92 @@
             <div class="container mx-auto px-4">
                 <div class="flex flex-col md:flex-row items-center">
                     <div class="md:w-1/2 text-center md:text-left mb-10 md:mb-0">
-                        <h2 class="text-4xl md:text-5xl font-bold leading-tight">Discover Your Natural Radiance</h2>
-                        <p class="mt-4 text-lg md:text-xl opacity-90">Clean, effective skincare solutions for your unique beauty.</p>
+                        <h2 class="text-4xl md:text-5xl font-bold leading-tight glow mb-4">Unleash Your <span class="text-brand-light">Sensual</span> Radiance</h2>
+                        <p class="mt-4 text-lg md:text-xl opacity-90">Indulge in luxurious skincare that awakens your natural beauty.</p>
                         <div class="mt-8 flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 justify-center md:justify-start">
-                            <a href="#products" class="bg-white text-brand-dark px-6 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl transition">Explore Products</a>
-                            <a href="#contact" class="border-2 border-white px-6 py-3 rounded-full font-semibold hover:bg-white hover:text-brand-dark transition">Contact Us</a>
+                            <a href="#products" class="bg-brand text-white px-8 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl transition duration-300 hover:bg-brand-light neon-border">Explore Collection</a>
+                            <a href="#contact" class="border border-brand px-8 py-3 rounded-full font-semibold hover:bg-brand hover:text-white transition duration-300 text-brand-light neon-border">Contact Us</a>
                         </div>
                     </div>
                     <div class="md:w-1/2">
                         <img src="https://images.unsplash.com/photo-1596755389378-c31d21fd1273?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" 
                              alt="Skincare Products" 
-                             class="rounded-lg shadow-2xl max-w-full h-auto">
+                             class="rounded-lg shadow-2xl max-w-full h-auto opacity-90 hover:opacity-100 transition duration-300">
                     </div>
                 </div>
             </div>
         </section>
 
         <!-- Features Section -->
-        <section class="py-16 bg-white">
+        <section class="py-16 bg-dark-light">
             <div class="container mx-auto px-4">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div class="p-6 bg-gray-50 rounded-lg shadow-md text-center">
+                    <div class="p-6 glass-card rounded-lg shadow-md text-center zoom-effect">
                         <div class="rounded-full bg-brand p-3 w-16 h-16 flex items-center justify-center mx-auto mb-4">
                             <i class="fas fa-leaf text-white text-2xl"></i>
                         </div>
-                        <h3 class="text-xl font-semibold mb-2">All Natural</h3>
-                        <p class="text-gray-600">Our products are made with carefully selected natural ingredients.</p>
+                        <h3 class="text-xl font-semibold mb-2 text-white">Pure & Natural</h3>
+                        <p class="text-gray-400">Formulated with rare, exotic ingredients chosen for their exceptional potency.</p>
                     </div>
-                    <div class="p-6 bg-gray-50 rounded-lg shadow-md text-center">
+                    <div class="p-6 glass-card rounded-lg shadow-md text-center zoom-effect">
                         <div class="rounded-full bg-brand p-3 w-16 h-16 flex items-center justify-center mx-auto mb-4">
                             <i class="fas fa-ban text-white text-2xl"></i>
                         </div>
-                        <h3 class="text-xl font-semibold mb-2">Cruelty Free</h3>
-                        <p class="text-gray-600">We never test on animals and support ethical business practices.</p>
+                        <h3 class="text-xl font-semibold mb-2 text-white">Cruelty Free</h3>
+                        <p class="text-gray-400">Ethically developed with love and respect for all living beings.</p>
                     </div>
-                    <div class="p-6 bg-gray-50 rounded-lg shadow-md text-center">
+                    <div class="p-6 glass-card rounded-lg shadow-md text-center zoom-effect">
                         <div class="rounded-full bg-brand p-3 w-16 h-16 flex items-center justify-center mx-auto mb-4">
                             <i class="fas fa-recycle text-white text-2xl"></i>
                         </div>
-                        <h3 class="text-xl font-semibold mb-2">Eco-Friendly</h3>
-                        <p class="text-gray-600">Our packaging is sustainable and environmentally conscious.</p>
+                        <h3 class="text-xl font-semibold mb-2 text-white">Eco-Luxury</h3>
+                        <p class="text-gray-400">Sustainable luxury packaging that honors both your aesthetics and the planet.</p>
                     </div>
                 </div>
             </div>
         </section>
 
         <!-- Products Section -->
-        <section id="products" class="py-20 bg-gray-50">
+        <section id="products" class="py-20 bg-dark">
             <div class="container mx-auto px-4">
                 <div class="text-center mb-12">
-                    <h2 class="text-3xl font-bold mb-4">Our Featured Products</h2>
-                    <p class="text-gray-600 max-w-2xl mx-auto">Discover our best-selling skincare solutions designed to nourish and protect your skin.</p>
+                    <h2 class="text-3xl font-bold mb-4 text-white glow">Luxury Collection</h2>
+                    <p class="text-gray-400 max-w-2xl mx-auto">Discover our sensual skincare solutions crafted to enhance your natural radiance.</p>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                     <!-- Product 1 -->
-                    <div class="bg-white rounded-lg shadow-md overflow-hidden zoom-effect">
-                        <img src="https://images.unsplash.com/photo-1556228841-7db5ca604495?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Facial Cleanser" class="w-full h-64 object-cover">
+                    <div class="product-card rounded-lg shadow-md overflow-hidden zoom-effect">
                         <div class="p-6">
-                            <h3 class="text-xl font-semibold mb-2">Gentle Facial Cleanser</h3>
-                            <p class="text-gray-600 mb-4">A delicate cleanser that removes impurities without drying the skin.</p>
+                            <div class="text-brand text-4xl mb-4 opacity-75"><i class="fas fa-tint"></i></div>
+                            <h3 class="text-xl font-semibold mb-2 text-white">Velvet Touch Cleanser</h3>
+                            <p class="text-gray-400 mb-4">A silky formula that caresses your skin while removing all impurities.</p>
                             <div class="flex justify-between items-center">
-                                <span class="text-brand-dark font-bold">$24.99</span>
-                                <button class="bg-brand-dark text-white px-4 py-2 rounded-full hover:bg-opacity-90 transition">Coming Soon</button>
+                                <span class="text-brand-light font-bold">$32.99</span>
+                                <button class="bg-brand text-white px-4 py-2 rounded-full hover:bg-brand-light transition duration-300 neon-border">Coming Soon</button>
                             </div>
                         </div>
                     </div>
                     <!-- Product 2 -->
-                    <div class="bg-white rounded-lg shadow-md overflow-hidden zoom-effect">
-                        <img src="https://images.unsplash.com/photo-1570194065650-d99fb4cd1350?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Hydrating Serum" class="w-full h-64 object-cover">
+                    <div class="product-card rounded-lg shadow-md overflow-hidden zoom-effect">
                         <div class="p-6">
-                            <h3 class="text-xl font-semibold mb-2">Hydrating Serum</h3>
-                            <p class="text-gray-600 mb-4">An intensive hydrating formula to plump and rejuvenate your skin.</p>
+                            <div class="text-brand text-4xl mb-4 opacity-75"><i class="fas fa-droplet"></i></div>
+                            <h3 class="text-xl font-semibold mb-2 text-white">Midnight Elixir</h3>
+                            <p class="text-gray-400 mb-4">An intensive hydrating serum infused with rare botanical extracts.</p>
                             <div class="flex justify-between items-center">
-                                <span class="text-brand-dark font-bold">$34.99</span>
-                                <button class="bg-brand-dark text-white px-4 py-2 rounded-full hover:bg-opacity-90 transition">Coming Soon</button>
+                                <span class="text-brand-light font-bold">$46.99</span>
+                                <button class="bg-brand text-white px-4 py-2 rounded-full hover:bg-brand-light transition duration-300 neon-border">Coming Soon</button>
                             </div>
                         </div>
                     </div>
                     <!-- Product 3 -->
-                    <div class="bg-white rounded-lg shadow-md overflow-hidden zoom-effect">
-                        <img src="https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Night Cream" class="w-full h-64 object-cover">
+                    <div class="product-card rounded-lg shadow-md overflow-hidden zoom-effect">
                         <div class="p-6">
-                            <h3 class="text-xl font-semibold mb-2">Nourishing Night Cream</h3>
-                            <p class="text-gray-600 mb-4">A rich overnight treatment that works while you sleep.</p>
+                            <div class="text-brand text-4xl mb-4 opacity-75"><i class="fas fa-moon"></i></div>
+                            <h3 class="text-xl font-semibold mb-2 text-white">Sensual Night Cream</h3>
+                            <p class="text-gray-400 mb-4">A decadent overnight treatment that works while you dream.</p>
                             <div class="flex justify-between items-center">
-                                <span class="text-brand-dark font-bold">$29.99</span>
-                                <button class="bg-brand-dark text-white px-4 py-2 rounded-full hover:bg-opacity-90 transition">Coming Soon</button>
+                                <span class="text-brand-light font-bold">$39.99</span>
+                                <button class="bg-brand text-white px-4 py-2 rounded-full hover:bg-brand-light transition duration-300 neon-border">Coming Soon</button>
                             </div>
                         </div>
                     </div>
@@ -177,27 +217,27 @@
         </section>
 
         <!-- About Section -->
-        <section id="about" class="py-20 bg-white">
+        <section id="about" class="py-20 bg-dark-light">
             <div class="container mx-auto px-4">
                 <div class="flex flex-col md:flex-row items-center">
                     <div class="md:w-1/2 mb-10 md:mb-0">
                         <img src="https://images.unsplash.com/photo-1558467523-46113f1ae58d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" 
                              alt="About EazyHaven" 
-                             class="rounded-lg shadow-lg max-w-full h-auto">
+                             class="rounded-lg shadow-lg max-w-full h-auto opacity-90">
                     </div>
                     <div class="md:w-1/2 md:pl-12">
-                        <h2 class="text-3xl font-bold mb-6">About EazyHaven</h2>
-                        <p class="text-gray-600 mb-4">EazyHaven was founded with a simple mission: to create effective skincare that honors both your skin and the planet.</p>
-                        <p class="text-gray-600 mb-4">We believe that beautiful skin doesn't have to come at a cost to your health or the environment. That's why we formulate our products using only the finest natural ingredients, sourced responsibly and packaged sustainably.</p>
-                        <p class="text-gray-600 mb-6">Our team of skincare experts works tirelessly to create products that deliver real results while staying true to our values of purity, efficacy, and environmental stewardship.</p>
+                        <h2 class="text-3xl font-bold mb-6 text-white glow">About EazyHaven</h2>
+                        <p class="text-gray-400 mb-4">Born from a passion for luxury and purity, EazyHaven creates seductive skincare that honors both your divine beauty and the planet.</p>
+                        <p class="text-gray-400 mb-4">We believe that true beauty comes from within, enhanced by mindful self-care rituals and premium quality ingredients. Each product is formulated with intention, using potent botanicals sourced from pristine environments around the world.</p>
+                        <p class="text-gray-400 mb-6">Our devoted team of formulators and skin experts are committed to creating products that not only transform your skin but also elevate your self-care routine into a sensual, indulgent experience.</p>
                         <div class="flex space-x-4">
-                            <a href="#" class="text-brand-dark hover:text-brand transition">
+                            <a href="#" class="text-brand hover:text-brand-light transition duration-300">
                                 <i class="fab fa-instagram text-2xl"></i>
                             </a>
-                            <a href="#" class="text-brand-dark hover:text-brand transition">
+                            <a href="#" class="text-brand hover:text-brand-light transition duration-300">
                                 <i class="fab fa-facebook text-2xl"></i>
                             </a>
-                            <a href="#" class="text-brand-dark hover:text-brand transition">
+                            <a href="#" class="text-brand hover:text-brand-light transition duration-300">
                                 <i class="fab fa-twitter text-2xl"></i>
                             </a>
                         </div>
@@ -207,20 +247,20 @@
         </section>
 
         <!-- Testimonials Section -->
-        <section id="testimonials" class="py-20 bg-gray-50">
+        <section id="testimonials" class="py-20 bg-dark">
             <div class="container mx-auto px-4">
                 <div class="text-center mb-12">
-                    <h2 class="text-3xl font-bold mb-4">What Our Customers Say</h2>
-                    <p class="text-gray-600 max-w-2xl mx-auto">Hear from people who have experienced the EazyHaven difference.</p>
+                    <h2 class="text-3xl font-bold mb-4 text-white glow">Devotees' Experiences</h2>
+                    <p class="text-gray-400 max-w-2xl mx-auto">Discover the transformative experiences of our devoted customers.</p>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <!-- Testimonial 1 -->
-                    <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="glass-card p-6 rounded-lg shadow-md zoom-effect">
                         <div class="flex items-center mb-4">
-                            <img src="https://randomuser.me/api/portraits/women/45.jpg" alt="Testimonial" class="w-12 h-12 rounded-full mr-4">
+                            <img src="https://randomuser.me/api/portraits/women/45.jpg" alt="Testimonial" class="w-12 h-12 rounded-full mr-4 border border-brand">
                             <div>
-                                <h4 class="font-semibold">Sarah Johnson</h4>
-                                <div class="text-yellow-400 flex">
+                                <h4 class="font-semibold text-white">Sarah Johnson</h4>
+                                <div class="text-brand flex">
                                     <i class="fas fa-star"></i>
                                     <i class="fas fa-star"></i>
                                     <i class="fas fa-star"></i>
@@ -229,15 +269,15 @@
                                 </div>
                             </div>
                         </div>
-                        <p class="text-gray-600 italic">"I've struggled with sensitive skin my whole life, but EazyHaven's products are the first that have truly made a difference. My skin feels amazing!"</p>
+                        <p class="text-gray-400 italic">"Using EazyHaven's products feels like giving my skin a sensual retreat every day. The textures are divine, the scents are intoxicating, and the results are absolutely transformative."</p>
                     </div>
                     <!-- Testimonial 2 -->
-                    <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="glass-card p-6 rounded-lg shadow-md zoom-effect">
                         <div class="flex items-center mb-4">
-                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Testimonial" class="w-12 h-12 rounded-full mr-4">
+                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Testimonial" class="w-12 h-12 rounded-full mr-4 border border-brand">
                             <div>
-                                <h4 class="font-semibold">Michael Thomson</h4>
-                                <div class="text-yellow-400 flex">
+                                <h4 class="font-semibold text-white">Michael Thomson</h4>
+                                <div class="text-brand flex">
                                     <i class="fas fa-star"></i>
                                     <i class="fas fa-star"></i>
                                     <i class="fas fa-star"></i>
@@ -246,15 +286,15 @@
                                 </div>
                             </div>
                         </div>
-                        <p class="text-gray-600 italic">"As someone who never paid much attention to skincare, EazyHaven made it simple. Their products are straightforward and effective."</p>
+                        <p class="text-gray-400 italic">"As someone who values quality and sophistication, EazyHaven delivers on all fronts. Their products have transformed my skincare routine into a daily luxury ritual."</p>
                     </div>
                     <!-- Testimonial 3 -->
-                    <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="glass-card p-6 rounded-lg shadow-md zoom-effect">
                         <div class="flex items-center mb-4">
-                            <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Testimonial" class="w-12 h-12 rounded-full mr-4">
+                            <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Testimonial" class="w-12 h-12 rounded-full mr-4 border border-brand">
                             <div>
-                                <h4 class="font-semibold">Emily Rodriguez</h4>
-                                <div class="text-yellow-400 flex">
+                                <h4 class="font-semibold text-white">Emily Rodriguez</h4>
+                                <div class="text-brand flex">
                                     <i class="fas fa-star"></i>
                                     <i class="fas fa-star"></i>
                                     <i class="fas fa-star"></i>
@@ -263,7 +303,7 @@
                                 </div>
                             </div>
                         </div>
-                        <p class="text-gray-600 italic">"Not only are these products amazing for my skin, but I love knowing that they're environmentally friendly. It's a win-win!"</p>
+                        <p class="text-gray-400 italic">"The subtle, sensual experience of using EazyHaven's products brings a moment of luxurious self-care to my day. My skin has never looked or felt better."</p>
                     </div>
                 </div>
             </div>
@@ -272,49 +312,61 @@
         <!-- Newsletter Section -->
         <section class="py-16 bg-brand-dark text-white">
             <div class="container mx-auto px-4 text-center">
-                <h2 class="text-3xl font-bold mb-4">Join Our Newsletter</h2>
-                <p class="max-w-2xl mx-auto mb-8">Stay updated with our latest products, skincare tips, and exclusive offers.</p>
-                <form class="max-w-md mx-auto flex flex-col sm:flex-row gap-4">
-                    <input type="email" placeholder="Your email address" class="flex-grow px-4 py-3 rounded-full text-gray-800 focus:outline-none">
-                    <button type="submit" class="bg-white text-brand-dark px-6 py-3 rounded-full font-semibold hover:bg-gray-100 transition">Subscribe</button>
+                <h2 class="text-3xl font-bold mb-4 glow">Join Our Inner Circle</h2>
+                <p class="max-w-2xl mx-auto mb-8 text-gray-200">Be the first to receive exclusive offers, sensual skincare tips, and early access to new product launches.</p>
+                <form id="newsletterForm" class="max-w-md mx-auto">
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <input type="email" id="newsletterEmail" placeholder="Your email address" class="flex-grow px-4 py-3 rounded-full text-gray-800 focus:outline-none bg-white bg-opacity-90 focus:bg-opacity-100 transition duration-300" required>
+                        <button type="submit" class="bg-dark text-white border border-brand px-6 py-3 rounded-full font-semibold hover:bg-dark-light transition duration-300 neon-border">Subscribe</button>
+                    </div>
+                    <div id="newsletterMessage" class="form-message rounded-lg text-center mt-2"></div>
                 </form>
             </div>
         </section>
 
         <!-- Contact Form Section -->
-        <section id="contact" class="py-20 bg-white">
+        <section id="contact" class="py-20 bg-dark">
             <div class="container mx-auto px-4">
                 <div class="text-center mb-12">
-                    <h2 class="text-3xl font-bold mb-4">Get In Touch</h2>
-                    <p class="text-gray-600 max-w-2xl mx-auto">Have questions or feedback? We'd love to hear from you!</p>
+                    <h2 class="text-3xl font-bold mb-4 text-white glow">Connect With Us</h2>
+                    <p class="text-gray-400 max-w-2xl mx-auto">We'd love to hear your thoughts, answer your questions, or just connect.</p>
                 </div>
                 <div class="max-w-3xl mx-auto">
-                    <div class="bg-gray-50 rounded-lg shadow-lg p-8">
-                        <form id="contactForm">
+                    <div class="glass-card rounded-lg shadow-lg p-8 neon-border">
+                        <form id="contactForm" action="https://formsubmit.co/contact@eazyhaven.com" method="POST">
+                            <!-- Honeypot to prevent spam -->
+                            <input type="text" name="_honey" style="display:none">
+                            <!-- Disable captcha -->
+                            <input type="hidden" name="_captcha" value="false">
+                            <!-- Success page (can be set to your own success page) -->
+                            <input type="hidden" name="_next" value="#contact">
+                            <!-- Subject for the email -->
+                            <input type="hidden" name="_subject" value="New contact form submission from EazyHaven website">
+                            
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                                 <div>
-                                    <label class="block text-sm font-medium mb-2" for="name">Full Name</label>
-                                    <input class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand" 
+                                    <label class="block text-sm font-medium mb-2 text-gray-300" for="name">Full Name</label>
+                                    <input class="w-full bg-dark-light border border-brand-dark border-opacity-50 p-3 rounded-lg focus:outline-none focus:border-brand text-white" 
                                            type="text" id="name" name="name" placeholder="Your name" required>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium mb-2" for="email">Email Address</label>
-                                    <input class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand" 
+                                    <label class="block text-sm font-medium mb-2 text-gray-300" for="email">Email Address</label>
+                                    <input class="w-full bg-dark-light border border-brand-dark border-opacity-50 p-3 rounded-lg focus:outline-none focus:border-brand text-white" 
                                            type="email" id="email" name="email" placeholder="Your email" required>
                                 </div>
                             </div>
                             <div class="mb-6">
-                                <label class="block text-sm font-medium mb-2" for="subject">Subject</label>
-                                <input class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand" 
+                                <label class="block text-sm font-medium mb-2 text-gray-300" for="subject">Subject</label>
+                                <input class="w-full bg-dark-light border border-brand-dark border-opacity-50 p-3 rounded-lg focus:outline-none focus:border-brand text-white" 
                                        type="text" id="subject" name="subject" placeholder="Subject of your message">
                             </div>
                             <div class="mb-6">
-                                <label class="block text-sm font-medium mb-2" for="message">Message</label>
-                                <textarea class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand" 
+                                <label class="block text-sm font-medium mb-2 text-gray-300" for="message">Message</label>
+                                <textarea class="w-full bg-dark-light border border-brand-dark border-opacity-50 p-3 rounded-lg focus:outline-none focus:border-brand text-white" 
                                           id="message" name="message" rows="4" placeholder="Your message" required></textarea>
                             </div>
                             <div class="text-center">
-                                <button type="submit" class="bg-brand-dark text-white px-8 py-3 rounded-full font-semibold hover:bg-opacity-90 transition">
+                                <button type="submit" class="bg-brand text-white px-8 py-3 rounded-full font-semibold hover:bg-brand-light transition duration-300 neon-border">
                                     Send Message
                                 </button>
                             </div>
@@ -325,75 +377,80 @@
         </section>
     </main>
 
-    <footer class="bg-gray-800 text-white py-12">
+    <footer class="bg-dark-dark text-white py-12 border-t border-brand-dark border-opacity-20">
         <div class="container mx-auto px-4">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
                 <div>
                     <div class="flex items-center space-x-2 mb-4">
                         <i class="fas fa-leaf text-brand text-2xl"></i>
-                        <h3 class="text-xl font-bold">EazyHaven</h3>
+                        <h3 class="text-xl font-bold glow">EazyHaven</h3>
                     </div>
-                    <p class="text-gray-400">Your trusted partner in natural, effective skincare solutions.</p>
+                    <p class="text-gray-400">Elevating skincare to a sensual art form. Indulge in the luxury your skin deserves.</p>
                 </div>
                 <div>
-                    <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
+                    <h4 class="text-lg font-semibold mb-4 text-gray-200">Explore</h4>
                     <ul class="space-y-2">
-                        <li><a href="#home" class="text-gray-400 hover:text-white transition">Home</a></li>
-                        <li><a href="#products" class="text-gray-400 hover:text-white transition">Products</a></li>
-                        <li><a href="#about" class="text-gray-400 hover:text-white transition">About Us</a></li>
-                        <li><a href="#contact" class="text-gray-400 hover:text-white transition">Contact</a></li>
+                        <li><a href="#home" class="text-gray-400 hover:text-brand transition duration-300">Home</a></li>
+                        <li><a href="#products" class="text-gray-400 hover:text-brand transition duration-300">Products</a></li>
+                        <li><a href="#about" class="text-gray-400 hover:text-brand transition duration-300">About Us</a></li>
+                        <li><a href="#contact" class="text-gray-400 hover:text-brand transition duration-300">Contact</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="text-lg font-semibold mb-4">Legal</h4>
+                    <h4 class="text-lg font-semibold mb-4 text-gray-200">Legal</h4>
                     <ul class="space-y-2">
-                        <li><a href="#" class="text-gray-400 hover:text-white transition">Privacy Policy</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition">Terms of Service</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition">Shipping Info</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition">Returns Policy</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-brand transition duration-300">Privacy Policy</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-brand transition duration-300">Terms of Service</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-brand transition duration-300">Shipping Info</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-brand transition duration-300">Returns Policy</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="text-lg font-semibold mb-4">Contact Info</h4>
+                    <h4 class="text-lg font-semibold mb-4 text-gray-200">Connect</h4>
                     <ul class="space-y-2 text-gray-400">
                         <li class="flex items-start">
-                            <i class="fas fa-map-marker-alt mt-1 mr-2"></i>
+                            <i class="fas fa-map-marker-alt mt-1 mr-2 text-brand"></i>
                             <span>123 Beauty Street, Skincare City, SC 12345</span>
                         </li>
                         <li class="flex items-center">
-                            <i class="fas fa-envelope mr-2"></i>
-                            <span>info@eazyhaven.com</span>
+                            <i class="fas fa-envelope mr-2 text-brand"></i>
+                            <span>contact@eazyhaven.com</span>
                         </li>
                         <li class="flex items-center">
-                            <i class="fas fa-phone mr-2"></i>
+                            <i class="fas fa-envelope-open-text mr-2 text-brand"></i>
+                            <span>newsletter@eazyhaven.com</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-phone mr-2 text-brand"></i>
                             <span>(123) 456-7890</span>
                         </li>
                     </ul>
                     <div class="flex space-x-4 mt-4">
-                        <a href="#" class="text-gray-400 hover:text-white transition">
+                        <a href="#" class="text-gray-400 hover:text-brand transition duration-300">
                             <i class="fab fa-facebook-f"></i>
                         </a>
-                        <a href="#" class="text-gray-400 hover:text-white transition">
+                        <a href="#" class="text-gray-400 hover:text-brand transition duration-300">
                             <i class="fab fa-twitter"></i>
                         </a>
-                        <a href="#" class="text-gray-400 hover:text-white transition">
+                        <a href="#" class="text-gray-400 hover:text-brand transition duration-300">
                             <i class="fab fa-instagram"></i>
                         </a>
-                        <a href="#" class="text-gray-400 hover:text-white transition">
+                        <a href="#" class="text-gray-400 hover:text-brand transition duration-300">
                             <i class="fab fa-pinterest-p"></i>
                         </a>
                     </div>
                 </div>
             </div>
-            <div class="border-t border-gray-700 pt-8 text-center">
-                <p>&copy; 2025 EazyHaven. All rights reserved.</p>
+            <div class="border-t border-gray-800 pt-8 text-center">
+                <p class="text-gray-500">&copy; 2025 EazyHaven. All rights reserved.</p>
             </div>
         </div>
     </footer>
 
-    <!-- JavaScript for mobile menu toggle -->
+    <!-- JavaScript for mobile menu toggle and form handling -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu toggle
             const menuToggle = document.getElementById('menu-toggle');
             const mobileMenu = document.getElementById('mobile-menu');
             
@@ -401,24 +458,71 @@
                 mobileMenu.classList.toggle('hidden');
             });
 
-            // Handle form submission
+            // Contact form handling
             const contactForm = document.getElementById('contactForm');
             contactForm.addEventListener('submit', function(e) {
+                // Form submission is handled by FormSubmit.co service
+                // No need to prevent default here as we're using a real form submission
+            });
+
+            // Newsletter form handling with AJAX
+            const newsletterForm = document.getElementById('newsletterForm');
+            const newsletterMessage = document.getElementById('newsletterMessage');
+            
+            newsletterForm.addEventListener('submit', function(e) {
                 e.preventDefault();
-                const name = document.getElementById('name').value;
-                const email = document.getElementById('email').value;
-                const message = document.getElementById('message').value;
+                const email = document.getElementById('newsletterEmail').value;
                 
-                // Form validation
-                if (!name || !email || !message) {
-                    alert('Please fill out all required fields');
+                // Email validation
+                if (!email || !validateEmail(email)) {
+                    showMessage(newsletterMessage, 'Please enter a valid email address.', 'error');
                     return;
                 }
                 
-                // Normally you would send this data to your server
-                alert('Thank you for your message. We will get back to you soon!');
-                contactForm.reset();
+                // AJAX request to handle the newsletter subscription
+                const formData = new FormData();
+                formData.append('email', email);
+                formData.append('timestamp', new Date().toISOString());
+                
+                // Use fetch API to submit form
+                fetch('subscribe.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    // For demo purposes, simulate success
+                    // In production, you would check the actual response
+                    showMessage(newsletterMessage, 'Thank you for subscribing to our newsletter!', 'success');
+                    newsletterForm.reset();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showMessage(newsletterMessage, 'There was an error. Please try again later.', 'error');
+                });
             });
+            
+            // Email validation function
+            function validateEmail(email) {
+                const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+                return re.test(String(email).toLowerCase());
+            }
+            
+            // Message display function
+            function showMessage(element, message, type) {
+                element.textContent = message;
+                element.classList.add('show');
+                
+                if (type === 'success') {
+                    element.className = 'form-message show bg-green-800 text-white rounded-lg';
+                } else {
+                    element.className = 'form-message show bg-red-800 text-white rounded-lg';
+                }
+                
+                // Hide message after 5 seconds
+                setTimeout(() => {
+                    element.classList.remove('show');
+                }, 5000);
+            }
 
             // Smooth scrolling for anchor links
             document.querySelectorAll('a[href^="#"]').forEach(anchor => {
