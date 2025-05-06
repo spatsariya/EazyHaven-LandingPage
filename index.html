@@ -3,53 +3,439 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EazyHaven - Skincare Brand</title>
+    <title>EazyHaven - Premium Skincare Solutions</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            light: '#f8fafc',
+                            DEFAULT: '#f0abfc',
+                            dark: '#86198f',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Montserrat', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        .hero-gradient {
+            background-image: linear-gradient(45deg, #f0abfc, #e879f9, #c026d3);
+        }
+        
+        .zoom-effect {
+            transition: transform 0.3s ease;
+        }
+        
+        .zoom-effect:hover {
+            transform: scale(1.05);
+        }
+    </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
-    <header class="bg-white shadow">
-        <div class="container mx-auto px-4 py-6">
-            <h1 class="text-3xl font-bold">EazyHaven</h1>
+<body class="bg-gray-50 text-gray-800 font-sans">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-md fixed w-full z-50">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-leaf text-brand-dark text-2xl"></i>
+                    <h1 class="text-2xl font-bold text-brand-dark">EazyHaven</h1>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="#home" class="font-medium hover:text-brand-dark transition">Home</a>
+                    <a href="#products" class="font-medium hover:text-brand-dark transition">Products</a>
+                    <a href="#about" class="font-medium hover:text-brand-dark transition">About</a>
+                    <a href="#testimonials" class="font-medium hover:text-brand-dark transition">Testimonials</a>
+                    <a href="#contact" class="font-medium hover:text-brand-dark transition">Contact</a>
+                </div>
+                <div class="md:hidden">
+                    <button id="menu-toggle" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            <!-- Mobile menu -->
+            <div id="mobile-menu" class="md:hidden hidden mt-3 pb-2">
+                <a href="#home" class="block py-2 hover:text-brand-dark transition">Home</a>
+                <a href="#products" class="block py-2 hover:text-brand-dark transition">Products</a>
+                <a href="#about" class="block py-2 hover:text-brand-dark transition">About</a>
+                <a href="#testimonials" class="block py-2 hover:text-brand-dark transition">Testimonials</a>
+                <a href="#contact" class="block py-2 hover:text-brand-dark transition">Contact</a>
+            </div>
         </div>
-    </header>
+    </nav>
+
     <main>
-        <section class="hero bg-blue-500 text-white py-20">
-            <div class="container mx-auto text-center">
-                <h2 class="text-4xl font-bold">Love Your Skin</h2>
-                <p class="mt-4">Discover the best skincare solutions for you.</p>
+        <!-- Hero Section -->
+        <section id="home" class="hero-gradient text-white pt-32 pb-20">
+            <div class="container mx-auto px-4">
+                <div class="flex flex-col md:flex-row items-center">
+                    <div class="md:w-1/2 text-center md:text-left mb-10 md:mb-0">
+                        <h2 class="text-4xl md:text-5xl font-bold leading-tight">Discover Your Natural Radiance</h2>
+                        <p class="mt-4 text-lg md:text-xl opacity-90">Clean, effective skincare solutions for your unique beauty.</p>
+                        <div class="mt-8 flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 justify-center md:justify-start">
+                            <a href="#products" class="bg-white text-brand-dark px-6 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl transition">Explore Products</a>
+                            <a href="#contact" class="border-2 border-white px-6 py-3 rounded-full font-semibold hover:bg-white hover:text-brand-dark transition">Contact Us</a>
+                        </div>
+                    </div>
+                    <div class="md:w-1/2">
+                        <img src="https://images.unsplash.com/photo-1596755389378-c31d21fd1273?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" 
+                             alt="Skincare Products" 
+                             class="rounded-lg shadow-2xl max-w-full h-auto">
+                    </div>
+                </div>
             </div>
         </section>
-        <section class="about py-20">
+
+        <!-- Features Section -->
+        <section class="py-16 bg-white">
             <div class="container mx-auto px-4">
-                <h2 class="text-2xl font-bold mb-4">About Us</h2>
-                <p>EazyHaven is your trusted partner in skincare. We provide natural and effective solutions tailored to your needs.</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="p-6 bg-gray-50 rounded-lg shadow-md text-center">
+                        <div class="rounded-full bg-brand p-3 w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-leaf text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">All Natural</h3>
+                        <p class="text-gray-600">Our products are made with carefully selected natural ingredients.</p>
+                    </div>
+                    <div class="p-6 bg-gray-50 rounded-lg shadow-md text-center">
+                        <div class="rounded-full bg-brand p-3 w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-ban text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Cruelty Free</h3>
+                        <p class="text-gray-600">We never test on animals and support ethical business practices.</p>
+                    </div>
+                    <div class="p-6 bg-gray-50 rounded-lg shadow-md text-center">
+                        <div class="rounded-full bg-brand p-3 w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-recycle text-white text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Eco-Friendly</h3>
+                        <p class="text-gray-600">Our packaging is sustainable and environmentally conscious.</p>
+                    </div>
+                </div>
             </div>
         </section>
-        <section class="contact-form bg-gray-200 py-20">
+
+        <!-- Products Section -->
+        <section id="products" class="py-20 bg-gray-50">
             <div class="container mx-auto px-4">
-                <h2 class="text-2xl font-bold mb-4">Contact Us</h2>
-                <form>
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium mb-1" for="name">Name</label>
-                        <input class="w-full border border-gray-300 p-2 rounded" type="text" id="name" placeholder="Your Name">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold mb-4">Our Featured Products</h2>
+                    <p class="text-gray-600 max-w-2xl mx-auto">Discover our best-selling skincare solutions designed to nourish and protect your skin.</p>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Product 1 -->
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden zoom-effect">
+                        <img src="https://images.unsplash.com/photo-1556228841-7db5ca604495?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Facial Cleanser" class="w-full h-64 object-cover">
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold mb-2">Gentle Facial Cleanser</h3>
+                            <p class="text-gray-600 mb-4">A delicate cleanser that removes impurities without drying the skin.</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-brand-dark font-bold">$24.99</span>
+                                <button class="bg-brand-dark text-white px-4 py-2 rounded-full hover:bg-opacity-90 transition">Coming Soon</button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium mb-1" for="email">Email</label>
-                        <input class="w-full border border-gray-300 p-2 rounded" type="email" id="email" placeholder="Your Email">
+                    <!-- Product 2 -->
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden zoom-effect">
+                        <img src="https://images.unsplash.com/photo-1570194065650-d99fb4cd1350?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Hydrating Serum" class="w-full h-64 object-cover">
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold mb-2">Hydrating Serum</h3>
+                            <p class="text-gray-600 mb-4">An intensive hydrating formula to plump and rejuvenate your skin.</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-brand-dark font-bold">$34.99</span>
+                                <button class="bg-brand-dark text-white px-4 py-2 rounded-full hover:bg-opacity-90 transition">Coming Soon</button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium mb-1" for="message">Message</label>
-                        <textarea class="w-full border border-gray-300 p-2 rounded" id="message" rows="4" placeholder="Your Message"></textarea>
+                    <!-- Product 3 -->
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden zoom-effect">
+                        <img src="https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Night Cream" class="w-full h-64 object-cover">
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold mb-2">Nourishing Night Cream</h3>
+                            <p class="text-gray-600 mb-4">A rich overnight treatment that works while you sleep.</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-brand-dark font-bold">$29.99</span>
+                                <button class="bg-brand-dark text-white px-4 py-2 rounded-full hover:bg-opacity-90 transition">Coming Soon</button>
+                            </div>
+                        </div>
                     </div>
-                    <button class="bg-blue-500 text-white px-4 py-2 rounded" type="submit">Send</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="py-20 bg-white">
+            <div class="container mx-auto px-4">
+                <div class="flex flex-col md:flex-row items-center">
+                    <div class="md:w-1/2 mb-10 md:mb-0">
+                        <img src="https://images.unsplash.com/photo-1558467523-46113f1ae58d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" 
+                             alt="About EazyHaven" 
+                             class="rounded-lg shadow-lg max-w-full h-auto">
+                    </div>
+                    <div class="md:w-1/2 md:pl-12">
+                        <h2 class="text-3xl font-bold mb-6">About EazyHaven</h2>
+                        <p class="text-gray-600 mb-4">EazyHaven was founded with a simple mission: to create effective skincare that honors both your skin and the planet.</p>
+                        <p class="text-gray-600 mb-4">We believe that beautiful skin doesn't have to come at a cost to your health or the environment. That's why we formulate our products using only the finest natural ingredients, sourced responsibly and packaged sustainably.</p>
+                        <p class="text-gray-600 mb-6">Our team of skincare experts works tirelessly to create products that deliver real results while staying true to our values of purity, efficacy, and environmental stewardship.</p>
+                        <div class="flex space-x-4">
+                            <a href="#" class="text-brand-dark hover:text-brand transition">
+                                <i class="fab fa-instagram text-2xl"></i>
+                            </a>
+                            <a href="#" class="text-brand-dark hover:text-brand transition">
+                                <i class="fab fa-facebook text-2xl"></i>
+                            </a>
+                            <a href="#" class="text-brand-dark hover:text-brand transition">
+                                <i class="fab fa-twitter text-2xl"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonials Section -->
+        <section id="testimonials" class="py-20 bg-gray-50">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold mb-4">What Our Customers Say</h2>
+                    <p class="text-gray-600 max-w-2xl mx-auto">Hear from people who have experienced the EazyHaven difference.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Testimonial 1 -->
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <div class="flex items-center mb-4">
+                            <img src="https://randomuser.me/api/portraits/women/45.jpg" alt="Testimonial" class="w-12 h-12 rounded-full mr-4">
+                            <div>
+                                <h4 class="font-semibold">Sarah Johnson</h4>
+                                <div class="text-yellow-400 flex">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 italic">"I've struggled with sensitive skin my whole life, but EazyHaven's products are the first that have truly made a difference. My skin feels amazing!"</p>
+                    </div>
+                    <!-- Testimonial 2 -->
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <div class="flex items-center mb-4">
+                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Testimonial" class="w-12 h-12 rounded-full mr-4">
+                            <div>
+                                <h4 class="font-semibold">Michael Thomson</h4>
+                                <div class="text-yellow-400 flex">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star-half-alt"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 italic">"As someone who never paid much attention to skincare, EazyHaven made it simple. Their products are straightforward and effective."</p>
+                    </div>
+                    <!-- Testimonial 3 -->
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <div class="flex items-center mb-4">
+                            <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Testimonial" class="w-12 h-12 rounded-full mr-4">
+                            <div>
+                                <h4 class="font-semibold">Emily Rodriguez</h4>
+                                <div class="text-yellow-400 flex">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 italic">"Not only are these products amazing for my skin, but I love knowing that they're environmentally friendly. It's a win-win!"</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Newsletter Section -->
+        <section class="py-16 bg-brand-dark text-white">
+            <div class="container mx-auto px-4 text-center">
+                <h2 class="text-3xl font-bold mb-4">Join Our Newsletter</h2>
+                <p class="max-w-2xl mx-auto mb-8">Stay updated with our latest products, skincare tips, and exclusive offers.</p>
+                <form class="max-w-md mx-auto flex flex-col sm:flex-row gap-4">
+                    <input type="email" placeholder="Your email address" class="flex-grow px-4 py-3 rounded-full text-gray-800 focus:outline-none">
+                    <button type="submit" class="bg-white text-brand-dark px-6 py-3 rounded-full font-semibold hover:bg-gray-100 transition">Subscribe</button>
                 </form>
             </div>
         </section>
+
+        <!-- Contact Form Section -->
+        <section id="contact" class="py-20 bg-white">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold mb-4">Get In Touch</h2>
+                    <p class="text-gray-600 max-w-2xl mx-auto">Have questions or feedback? We'd love to hear from you!</p>
+                </div>
+                <div class="max-w-3xl mx-auto">
+                    <div class="bg-gray-50 rounded-lg shadow-lg p-8">
+                        <form id="contactForm">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                <div>
+                                    <label class="block text-sm font-medium mb-2" for="name">Full Name</label>
+                                    <input class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand" 
+                                           type="text" id="name" name="name" placeholder="Your name" required>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-2" for="email">Email Address</label>
+                                    <input class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand" 
+                                           type="email" id="email" name="email" placeholder="Your email" required>
+                                </div>
+                            </div>
+                            <div class="mb-6">
+                                <label class="block text-sm font-medium mb-2" for="subject">Subject</label>
+                                <input class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand" 
+                                       type="text" id="subject" name="subject" placeholder="Subject of your message">
+                            </div>
+                            <div class="mb-6">
+                                <label class="block text-sm font-medium mb-2" for="message">Message</label>
+                                <textarea class="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand" 
+                                          id="message" name="message" rows="4" placeholder="Your message" required></textarea>
+                            </div>
+                            <div class="text-center">
+                                <button type="submit" class="bg-brand-dark text-white px-8 py-3 rounded-full font-semibold hover:bg-opacity-90 transition">
+                                    Send Message
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
     </main>
-    <footer class="bg-gray-800 text-white py-6">
-        <div class="container mx-auto text-center">
-            <p>&copy; 2025 EazyHaven. All rights reserved.</p>
+
+    <footer class="bg-gray-800 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fas fa-leaf text-brand text-2xl"></i>
+                        <h3 class="text-xl font-bold">EazyHaven</h3>
+                    </div>
+                    <p class="text-gray-400">Your trusted partner in natural, effective skincare solutions.</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#home" class="text-gray-400 hover:text-white transition">Home</a></li>
+                        <li><a href="#products" class="text-gray-400 hover:text-white transition">Products</a></li>
+                        <li><a href="#about" class="text-gray-400 hover:text-white transition">About Us</a></li>
+                        <li><a href="#contact" class="text-gray-400 hover:text-white transition">Contact</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Legal</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Privacy Policy</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Terms of Service</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Shipping Info</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Returns Policy</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Contact Info</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li class="flex items-start">
+                            <i class="fas fa-map-marker-alt mt-1 mr-2"></i>
+                            <span>123 Beauty Street, Skincare City, SC 12345</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-envelope mr-2"></i>
+                            <span>info@eazyhaven.com</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-phone mr-2"></i>
+                            <span>(123) 456-7890</span>
+                        </li>
+                    </ul>
+                    <div class="flex space-x-4 mt-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition">
+                            <i class="fab fa-pinterest-p"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 pt-8 text-center">
+                <p>&copy; 2025 EazyHaven. All rights reserved.</p>
+            </div>
         </div>
     </footer>
+
+    <!-- JavaScript for mobile menu toggle -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuToggle = document.getElementById('menu-toggle');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            menuToggle.addEventListener('click', function() {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            // Handle form submission
+            const contactForm = document.getElementById('contactForm');
+            contactForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const name = document.getElementById('name').value;
+                const email = document.getElementById('email').value;
+                const message = document.getElementById('message').value;
+                
+                // Form validation
+                if (!name || !email || !message) {
+                    alert('Please fill out all required fields');
+                    return;
+                }
+                
+                // Normally you would send this data to your server
+                alert('Thank you for your message. We will get back to you soon!');
+                contactForm.reset();
+            });
+
+            // Smooth scrolling for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    
+                    // Close mobile menu if open
+                    if (!mobileMenu.classList.contains('hidden')) {
+                        mobileMenu.classList.add('hidden');
+                    }
+                    
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+        });
+    </script>
 </body>
 </html>
