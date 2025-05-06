@@ -15,12 +15,24 @@
                 <form id="contactForm" action="https://formsubmit.co/contact@eazyhaven.com" method="POST">
                     <!-- Honeypot to prevent spam -->
                     <input type="text" name="_honey" style="display:none">
-                    <!-- Disable captcha -->
-                    <input type="hidden" name="_captcha" value="false">
-                    <!-- Success page (can be set to your own success page) -->
-                    <input type="hidden" name="_next" value="#contact">
+                    
+                    <!-- Enable captcha for human authentication -->
+                    <input type="hidden" name="_captcha" value="true">
+                    
+                    <!-- Success page (redirect after submission) -->
+                    <input type="hidden" name="_next" value="thank-you.html">
+                    
                     <!-- Subject for the email -->
                     <input type="hidden" name="_subject" value="New contact form submission from EazyHaven website">
+                    
+                    <!-- Auto-response to user -->
+                    <input type="hidden" name="_autoresponse" value="Thank you for contacting EazyHaven! We have received your message and will get back to you as soon as possible.">
+                    
+                    <!-- CC to see all submissions -->
+                    <input type="hidden" name="_cc" value="support@eazyhaven.com">
+                    
+                    <!-- Template ID for custom email templates (optional) -->
+                    <input type="hidden" name="_template" value="box">
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                         <div>
@@ -45,7 +57,7 @@
                                   id="message" name="message" rows="4" placeholder="Your message" required></textarea>
                     </div>
                     <div class="text-center">
-.                        <button type="submit" class="bg-brand-dark text-white px-8 py-3 rounded-full font-semibold hover:bg-brand transition duration-300 neon-border">
+                        <button type="submit" class="bg-brand-dark text-white px-8 py-3 rounded-full font-semibold hover:bg-brand transition duration-300 neon-border">
                             Send Message
                         </button>
                     </div>
