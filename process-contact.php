@@ -6,6 +6,16 @@ header('Access-Control-Allow-Headers: Content-Type');
 header('Content-Type: application/json');
 header('Cache-Control: no-cache, no-store, must-revalidate');
 
+// Include PHPMailer classes
+require_once 'includes/PHPMailer/Exception.php';
+require_once 'includes/PHPMailer/PHPMailer.php';
+require_once 'includes/PHPMailer/SMTP.php';
+
+// Import PHPMailer classes into the global namespace
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
+
 // Check if the request is a POST request
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Get and sanitize form data
@@ -91,100 +101,133 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Close the file
     fclose($handle);
 
-    // Send confirmation email to the user
-    $to = $email;
-    $emailSubject = "Thank you for contacting EazyHaven";
-    $userMessage = "
-    <html>
-    <head>
-        <title>Thank You for Contacting EazyHaven</title>
-    </head>
-    <body>
-        <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
-            <div style='background-color: #86198f; padding: 20px; color: white; text-align: center;'>
-                <h1>Thank You for Contacting Us!</h1>
-            </div>
-            <div style='padding: 20px; background-color: #f9f9f9;'>
-                <p>Dear $name,</p>
-                <p>Thank you for reaching out to EazyHaven. We have received your message and will get back to you as soon as possible.</p>
-                <p>Here's a summary of your submission:</p>
-                <ul>
-                    <li><strong>Name:</strong> $name</li>
-                    <li><strong>Email:</strong> $email</li>
-                    <li><strong>Subject:</strong> $subject</li>
-                    <li><strong>Message:</strong> $message</li>
-                </ul>
-                <p>We appreciate your interest in EazyHaven and look forward to connecting with you.</p>
-                <p>Warm regards,<br>The EazyHaven Team</p>
-            </div>
-            <div style='background-color: #333; color: #999; padding: 15px; text-align: center; font-size: 12px;'>
-                <p>&copy; " . date('Y') . " EazyHaven. All rights reserved.</p>
-            </div>
-        </div>
-    </body>
-    </html>
-    ";
-
-    // Set up email headers
-    $headers = "MIME-Version: 1.0" . "\r\n";
-    $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-    $headers .= "From: EazyHaven <contact@eazyhaven.com>" . "\r\n";
-
-    // Set up SMTP configuration for Hostinger
-    ini_set("SMTP", "smtp.hostinger.com");
-    ini_set("smtp_port", "465");
-    ini_set("sendmail_from", "contact@eazyhaven.com");
+    // SMTP Email Configuration
+    $smtpHost = 'smtp.hostinger.com';  // Replace with your SMTP server
+    $smtpUsername = 'contact@eazyhaven.com';  // Replace with your email username
+    $smtpPassword = 'E@$Y#@ven2025';  // Replace with your actual email password
+    $smtpPort = 465;  // Usually 587 for TLS or 465 for SSL
     
-    // Send the email (comment out for testing)
-    mail($to, $emailSubject, $userMessage, $headers);
-    
-    // Send notification to admin
-    $adminEmail = "contact@eazyhaven.com";
-    $adminSubject = "New Contact Form Submission from $name";
-    $adminMessage = "
-    <html>
-    <head>
-        <title>New Contact Form Submission</title>
-    </head>
-    <body>
-        <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
-            <div style='background-color: #86198f; padding: 20px; color: white; text-align: center;'>
-                <h1>New Contact Form Submission</h1>
+    // Send confirmation email to the user using PHPMailer with SMTP
+    try {
+        $userMail = new PHPMailer(true);
+        
+        // Server settings
+        $userMail->SMTPDebug = 0;  // Set to 0 for no debug output, 1 or 2 for debug output
+        $userMail->isSMTP();
+        $userMail->Host       = $smtpHost;
+        $userMail->SMTPAuth   = true;
+        $userMail->Username   = $smtpUsername;
+        $userMail->Password   = $smtpPassword;
+        $userMail->Port       = $smtpPort;
+        $userMail->SMTPSecure = 'ssl';  // Use 'tls' or 'ssl'
+        
+        // Recipients
+        $userMail->setFrom('contact@eazyhaven.com', 'EazyHaven');
+        $userMail->addAddress($email, $name);
+        
+        // Content
+        $userMail->isHTML(true);
+        $userMail->Subject = "Thank you for contacting EazyHaven";
+        $userMail->Body = "
+        <html>
+        <head>
+            <title>Thank You for Contacting EazyHaven</title>
+        </head>
+        <body>
+            <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
+                <div style='background-color: #86198f; padding: 20px; color: white; text-align: center;'>
+                    <h1>Thank You for Contacting Us!</h1>
+                </div>
+                <div style='padding: 20px; background-color: #f9f9f9;'>
+                    <p>Dear $name,</p>
+                    <p>Thank you for reaching out to EazyHaven. We have received your message and will get back to you as soon as possible.</p>
+                    <p>Here's a summary of your submission:</p>
+                    <ul>
+                        <li><strong>Name:</strong> $name</li>
+                        <li><strong>Email:</strong> $email</li>
+                        <li><strong>Subject:</strong> $subject</li>
+                        <li><strong>Message:</strong> $message</li>
+                    </ul>
+                    <p>We appreciate your interest in EazyHaven and look forward to connecting with you.</p>
+                    <p>Warm regards,<br>The EazyHaven Team</p>
+                </div>
+                <div style='background-color: #333; color: #999; padding: 15px; text-align: center; font-size: 12px;'>
+                    <p>&copy; " . date('Y') . " EazyHaven. All rights reserved.</p>
+                </div>
             </div>
-            <div style='padding: 20px; background-color: #f9f9f9;'>
-                <p>You have received a new contact form submission with the following details:</p>
-                <ul>
-                    <li><strong>Name:</strong> $name</li>
-                    <li><strong>Email:</strong> $email</li>
-                    <li><strong>Subject:</strong> $subject</li>
-                    <li><strong>Message:</strong> $message</li>
-                    <li><strong>Submitted:</strong> $timestamp</li>
-                </ul>
-                <p>Please respond to this inquiry as soon as possible.</p>
+        </body>
+        </html>";
+        
+        $userMail->send();
+        
+        // Send notification to admin
+        $adminMail = new PHPMailer(true);
+        
+        // Server settings (same as above)
+        $adminMail->SMTPDebug = 0;
+        $adminMail->isSMTP();
+        $adminMail->Host       = $smtpHost;
+        $adminMail->SMTPAuth   = true;
+        $adminMail->Username   = $smtpUsername;
+        $adminMail->Password   = $smtpPassword;
+        $adminMail->Port       = $smtpPort;
+        $adminMail->SMTPSecure = 'ssl';
+        
+        // Recipients
+        $adminMail->setFrom('no-reply@eazyhaven.com', 'EazyHaven Website');
+        $adminMail->addAddress('contact@eazyhaven.com', 'EazyHaven Contact');
+        $adminMail->addReplyTo($email, $name);
+        
+        // Optionally CC to support email
+        $supportEmail = "support@eazyhaven.com";
+        if ($supportEmail != 'contact@eazyhaven.com') {
+            $adminMail->addCC($supportEmail, 'EazyHaven Support');
+        }
+        
+        // Content
+        $adminMail->isHTML(true);
+        $adminMail->Subject = "New Contact Form Submission from $name";
+        $adminMail->Body = "
+        <html>
+        <head>
+            <title>New Contact Form Submission</title>
+        </head>
+        <body>
+            <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
+                <div style='background-color: #86198f; padding: 20px; color: white; text-align: center;'>
+                    <h1>New Contact Form Submission</h1>
+                </div>
+                <div style='padding: 20px; background-color: #f9f9f9;'>
+                    <p>You have received a new contact form submission with the following details:</p>
+                    <ul>
+                        <li><strong>Name:</strong> $name</li>
+                        <li><strong>Email:</strong> $email</li>
+                        <li><strong>Subject:</strong> $subject</li>
+                        <li><strong>Message:</strong> $message</li>
+                        <li><strong>Submitted:</strong> $timestamp</li>
+                    </ul>
+                    <p>Please respond to this inquiry as soon as possible.</p>
+                </div>
             </div>
-        </div>
-    </body>
-    </html>
-    ";
-    
-    $adminHeaders = "MIME-Version: 1.0" . "\r\n";
-    $adminHeaders .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-    $adminHeaders .= "From: EazyHaven Website <no-reply@eazyhaven.com>" . "\r\n";
-    $adminHeaders .= "Reply-To: $name <$email>" . "\r\n";
-    
-    // Send the admin notification (comment out for testing)
-    mail($adminEmail, $adminSubject, $adminMessage, $adminHeaders);
-    
-    // Optionally CC to support email
-    $supportEmail = "support@eazyhaven.com";
-    if ($supportEmail != $adminEmail) {
-        mail($supportEmail, $adminSubject, $adminMessage, $adminHeaders);
+        </body>
+        </html>";
+        
+        $adminMail->send();
+        
+        // Return a success response
+        http_response_code(200);
+        echo json_encode(['status' => 'success', 'message' => 'Your message has been sent successfully!']);
+        exit;
+        
+    } catch (Exception $e) {
+        // Log the error for debugging
+        error_log("Mailer Error: " . $e->getMessage());
+        
+        // Return a user-friendly error
+        http_response_code(500);
+        echo json_encode(['status' => 'error', 'message' => 'Could not send email. Please try again later.']);
+        exit;
     }
-
-    // Return a success response and redirect
-    http_response_code(200);
-    echo json_encode(['status' => 'success', 'message' => 'Your message has been sent successfully!']);
-    exit;
 } else {
     // If not a POST request, return an error
     http_response_code(405);
