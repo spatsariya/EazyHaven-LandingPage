@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     showContactMessage(data.message, 'success');
                     contactForm.reset();
                     
-                    // Remove the redirection to thank-you.html
+                    // Removed the redirection to thank-you.html
                     // setTimeout(() => {
                     //     window.location.href = 'thank-you.html';
                     // }, 2000);

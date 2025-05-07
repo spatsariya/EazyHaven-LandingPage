@@ -1,16 +1,14 @@
 <?php
-// Email configuration constants - EXAMPLE FILE
-// Rename this file to email-config.php and update with your actual credentials
-
-// SMTP server settings
-define('SMTP_HOST', 'your_smtp_server.com');  // e.g., smtp.hostinger.com
-define('SMTP_USER', 'your_email@example.com');
-define('SMTP_PASSWORD', 'your_password_here');
-define('SMTP_PORT', 465);  // Common ports: 465 (SSL) or 587 (TLS)
-define('SMTP_SECURE', 'ssl');  // Options: 'ssl', 'tls', or ''
+// Example Email configuration constants - RENAME THIS FILE TO email-config.php AND UPDATE VALUES
+define('SMTP_HOST', 'smtp.yourdomain.com'); // Replace with your SMTP host (e.g., smtp.gmail.com)
+define('SMTP_USERNAME', 'no-reply@yourdomain.com'); // Replace with your email
+define('SMTP_USER', 'Your Site Name'); // Replace with your site name
+define('SMTP_PASSWORD', 'your-secure-password'); // Replace with your email password
+define('SMTP_PORT', 465); // Use 587 for TLS or 465 for SSL
+define('SMTP_SECURE', 'ssl'); // Use 'tls' for port 587 or 'ssl' for port 465
 
 // Email sender information
-define('EMAIL_FROM', 'your_email@example.com');
-define('EMAIL_NAME', 'Your Website Name');
-define('ADMIN_EMAIL', 'admin@example.com');
+define('EMAIL_FROM', 'no-reply@yourdomain.com'); // Replace with your sender email
+define('EMAIL_NAME', 'Your Site Name'); // Replace with your site name
+define('ADMIN_EMAIL', 'admin@yourdomain.com'); // Replace with your admin email where you'll receive submissions
 ?>
