@@ -137,7 +137,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 logDebug("isSMTP() method called successfully");
             } else {
                 logDebug("isSMTP() method not available in PHPMailer version");
-                // Manually configure SMTP settings if isSMTP() is unavailable
                 $mail->Mailer = 'smtp';
             }
             
@@ -173,7 +172,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $mail->addReplyTo($email, $name);
             
             // Content
-            $mail->isHTML(true);
+            if (method_exists($mail, 'isHTML')) {
+                $mail->isHTML(true); // Use isHTML() only if it exists
+                logDebug("isHTML() method called successfully");
+            } else {
+                logDebug("isHTML() method not available in PHPMailer version");
+                $mail->ContentType = 'text/html'; // Fallback for HTML emails
+            }
             $mail->Subject = "Contact Form: $subject";
             
             // Create message body
