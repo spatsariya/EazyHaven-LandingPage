@@ -1,0 +1,24 @@
+<?php
+/**
+ * Email Configuration Example for EazyHaven
+ * 
+ * IMPORTANT: This is just an example file.
+ * To use this configuration:
+ * 1. Copy this file to email-config.php (without the .example extension)
+ * 2. Replace the placeholder values with your actual credentials
+ * 3. Make sure email-config.php is excluded from version control in .gitignore
+ */
+
+// Email configuration constants
+define('SMTP_HOST', 'smtp.yourmailserver.com'); // Replace with actual SMTP host
+define('SMTP_USERNAME', 'your-email@example.com'); // Replace with actual email
+define('SMTP_USER', 'Your Name'); // Name to display as sender
+define('SMTP_PASSWORD', 'your-secure-password'); // Replace with actual password
+define('SMTP_PORT', 465); // Use 587 for TLS or 465 for SSL
+define('SMTP_SECURE', 'ssl'); // Use 'tls' for port 587 or 'ssl' for port 465
+
+// Email sender information
+define('EMAIL_FROM', 'your-email@example.com');
+define('EMAIL_NAME', 'Your Site Name');
+define('ADMIN_EMAIL', 'admin@example.com'); // Email where contact form submissions will be sent
+?>

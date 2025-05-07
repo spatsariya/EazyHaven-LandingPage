@@ -1,0 +1,97 @@
+<?php
+/**
+ * Example mail sending script for EazyHaven
+ * 
+ * IMPORTANT: This is just an example file.
+ * To use this script:
+ * 1. Copy this file to send-mail.php
+ * 2. Create a proper email-config.php in the includes/ directory with your actual credentials
+ * 3. Make sure email-config.php is excluded from version control in .gitignore
+ */
+
+// Require PHPMailer classes
+require 'PHPMailer/PHPMailer.php';
+require 'PHPMailer/SMTP.php';
+require 'PHPMailer/Exception.php';
+
+// Include email configuration
+require_once 'includes/email-config.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+// Set the content type to JSON
+header('Content-Type: application/json');
+
+// Validate that the request is a POST
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    echo json_encode(['status' => 'error', 'message' => 'Method not allowed']);
+    exit;
+}
+
+// Validate required fields
+$required_fields = ['name', 'email', 'message'];
+foreach ($required_fields as $field) {
+    if (empty($_POST[$field])) {
+        http_response_code(400);
+        echo json_encode(['status' => 'error', 'message' => 'Please fill in all required fields']);
+        exit;
+    }
+}
+
+// Validate email format
+if (!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {
+    http_response_code(400);
+    echo json_encode(['status' => 'error', 'message' => 'Invalid email address']);
+    exit;
+}
+
+// Sanitize inputs
+$name = filter_var($_POST['name'], FILTER_SANITIZE_STRING);
+$email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
+$subject = filter_var($_POST['subject'] ?? 'Contact Form Submission', FILTER_SANITIZE_STRING);
+$message = filter_var($_POST['message'], FILTER_SANITIZE_STRING);
+
+// Initialize PHPMailer
+$mail = new PHPMailer(true);
+
+try {
+    // Server settings
+    $mail->isSMTP();
+    $mail->Host       = SMTP_HOST;
+    $mail->SMTPAuth   = true;
+    $mail->Username   = SMTP_USERNAME;
+    $mail->Password   = SMTP_PASSWORD;
+    $mail->SMTPSecure = SMTP_SECURE;
+    $mail->Port       = SMTP_PORT;
+
+    // Recipients
+    $mail->setFrom(EMAIL_FROM, EMAIL_NAME);
+    $mail->addAddress(ADMIN_EMAIL);
+    $mail->addReplyTo($email, $name);
+
+    // Content
+    $mail->isHTML(true);
+    $mail->Subject = $subject;
+    $mail->Body    = "
+        <strong>Name:</strong> {$name}<br>
+        <strong>Email:</strong> {$email}<br>
+        <strong>Message:</strong><br>" . nl2br($message);
+
+    // Create plain text version
+    $mail->AltBody = "Name: {$name}\nEmail: {$email}\nMessage: {$message}";
+
+    // Send email
+    $mail->send();
+    
+    // Return success JSON response
+    echo json_encode(['status' => 'success', 'message' => 'Your message has been received. Thank you for contacting us!']);
+} catch (Exception $e) {
+    // Log the error securely (to a file not accessible from the web)
+    error_log("Mail sending failed: " . $e->getMessage());
+    
+    // Return error JSON response (without exposing sensitive details)
+    http_response_code(500);
+    echo json_encode(['status' => 'error', 'message' => 'Failed to send email. Please try again later.']);
+}

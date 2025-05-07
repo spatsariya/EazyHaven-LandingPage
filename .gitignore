@@ -18,6 +18,7 @@ Thumbs.db
 debug_log.txt
 mail_debug.log
 swiftmailer_log.txt
+php_error_log
 
 # Environment files and sensitive credentials
 /includes/email-config.php
@@ -28,15 +29,24 @@ send-mail.php
 *.key
 *password*
 *.pwd
+*secret*
+*token*
+*credential*
+auth*.php
 
 # Local configuration files
 config.local.php
 config*.php
+database*.php
+connection*.php
+db-config*.php
 
 # Data directory (contains user submissions)
 /data/
 *.csv
 form_submissions.csv
+subscribers*.csv
+customers*.csv
 
 # Temporary files
 *.tmp
@@ -48,3 +58,9 @@ form_submissions.csv
 *.bak
 *.backup
 *.swp
+
+# Security-related files
+*oauth*
+*2fa*
+*auth*
+*ssl*
