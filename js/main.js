@@ -67,10 +67,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     showContactMessage(data.message, 'success');
                     contactForm.reset();
                     
-                    // Redirect to thank you page after a brief delay
-                    setTimeout(() => {
-                        window.location.href = 'thank-you.html';
-                    }, 2000);
+                    // Remove the redirection to thank-you.html
+                    // setTimeout(() => {
+                    //     window.location.href = 'thank-you.html';
+                    // }, 2000);
                 } else {
                     showContactMessage(data.message || 'There was an error sending your message.', 'error');
                     console.error('Form submission error:', data);
