@@ -95,11 +95,22 @@ Modify the CSS in `css/styles.css` to change the appearance of the landing page.
 
 ## License
 
-[MIT License](LICENSE) - Feel free to use, modify, and distribute as needed.
+This project is free to use under the following conditions:
+- You must maintain attribution to the original developer, Shivam Patsariya, in your project.
+- A link back to the original repository is appreciated but not required.
+- You may modify and adapt the code for your own projects.
+
+## Attribution
+
+Developed by [Shivam Patsariya](https://github.com/spatsariya). If you use this template, please include the following attribution line in your footer or credits page:
+
+```html
+Landing page template originally developed by <a href="https://github.com/spatsariya">Shivam Patsariya</a>
+```
 
 ## Contact
 
-For questions or support, please contact [Shivam](mailto:s.patsariya@gmail.com).
+For questions or support, please contact [Shivam Patsariya](mailto:s.patsariya@gmail.com).
 
 ---
 
