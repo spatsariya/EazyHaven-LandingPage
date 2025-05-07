@@ -42,6 +42,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <textarea class="w-full bg-dark-light border border-brand-dark border-opacity-50 p-3 rounded-lg focus:outline-none focus:border-brand text-white" 
                                   id="message" name="message" rows="4" placeholder="Your message" required></textarea>
                     </div>
+                    
+                    <!-- hCaptcha Widget -->
+                    <div class="mb-6 flex justify-center">
+                        <div class="h-captcha" data-sitekey="10000000-ffff-ffff-ffff-000000000001"></div>
+                    </div>
+                    
                     <div class="text-center">
                         <button type="submit" id="submitButton" class="bg-brand-dark text-white px-8 py-3 rounded-full font-semibold hover:bg-brand transition duration-300 neon-border">
                             Send Message

@@ -1,0 +1,19 @@
+<?php
+/**
+ * hCaptcha Configuration for EazyHaven
+ * 
+ * IMPORTANT: This is just an example file.
+ * To use this configuration:
+ * 1. Copy this file to captcha-config.php (without the .example extension)
+ * 2. Replace the placeholder values with your actual hCaptcha credentials
+ * 3. Make sure captcha-config.php is excluded from version control in .gitignore
+ */
+
+// hCaptcha configuration constants
+define('HCAPTCHA_SITE_KEY', '10000000-ffff-ffff-ffff-000000000001'); // Replace with your actual site key from hCaptcha dashboard
+define('HCAPTCHA_SECRET_KEY', '0x0000000000000000000000000000000000000000'); // Replace with your actual secret key from hCaptcha dashboard
+
+// For testing purposes, you can use these test keys:
+// Site key: 10000000-ffff-ffff-ffff-000000000001
+// Secret key: 0x0000000000000000000000000000000000000000
+?>
