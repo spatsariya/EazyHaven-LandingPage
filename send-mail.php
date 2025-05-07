@@ -118,6 +118,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ->setUsername(SMTP_USERNAME)
                 ->setPassword(SMTP_PASSWORD);
 
+            // Enable logging
+            $logger = new Swift_Plugins_Loggers_ArrayLogger();
+            $transport->registerPlugin(new Swift_Plugins_LoggerPlugin($logger));
+
             // Create mailer
             $mailer = new Swift_Mailer($transport);
 
@@ -137,8 +141,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 logDebug("Failed to send email via SwiftMailer");
             }
+
+            // Log the email sending process
+            file_put_contents('swiftmailer_log.txt', $logger->dump(), FILE_APPEND);
         } catch (Exception $e) {
             logDebug("Failed to send email via SwiftMailer", $e->getMessage());
+            file_put_contents('swiftmailer_log.txt', $e->getMessage(), FILE_APPEND);
         }
 
     } catch (Exception $e) {
