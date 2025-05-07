@@ -5,6 +5,7 @@ require_once 'lib/swift_required.php';
 
 // Include the EmailValidator library manually
 require_once 'lib/EmailValidator-4.x/src/EmailValidator.php';
+require_once 'lib/EmailValidator-4.x/src/EmailLexer.php';
 
 // Ensure email-config.php is included and constants are defined
 if (!defined('SMTP_USERNAME') || !defined('SMTP_PASSWORD') || !defined('SMTP_HOST') || !defined('SMTP_PORT') || !defined('SMTP_SECURE')) {
