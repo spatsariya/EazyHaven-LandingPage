@@ -10,7 +10,7 @@
  */
 
 // hCaptcha configuration constants
-define('HCAPTCHA_SITE_KEY', '03f6f79e-8f76-42a4-8fa6-36fcf356378c'); // Replace with your actual site key from hCaptcha dashboard
+define('HCAPTCHA_SITE_KEY', 'c566f5b6-6c1c-4a3e-9834-6ecefaf27a5a'); // Replace with your actual site key from hCaptcha dashboard
 define('HCAPTCHA_SECRET_KEY', 'ES_dba4b289340e45ea8a7bca4bc297a086'); // Replace with your actual secret key from hCaptcha dashboard
 
 // For testing purposes, you can use these test keys:
