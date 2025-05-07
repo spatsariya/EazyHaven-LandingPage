@@ -96,7 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // mail($to, $subject, $message, $headers);
     
     // Also, send a notification to the admin
-    $adminEmail = "contact@eazyhaven.com";
+    $adminEmail = "no-reply@eazyhaven.com";
     $adminSubject = "New Newsletter Subscription";
     $adminMessage = "A new user has subscribed to the newsletter: $email";
     $adminHeaders = "From: EazyHaven <newsletter@eazyhaven.com>" . "\r\n";
