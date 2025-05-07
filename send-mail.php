@@ -166,14 +166,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'username' => SMTP_USER,
             ]);
             
-            // Add fallback to HELO if EHLO fails
-            if (!$mail->smtp->hello(gethostname())) {
-                logDebug("EHLO failed, attempting HELO");
-                if (!$mail->smtp->sendCommand('HELO', 'HELO ' . gethostname(), 250)) {
-                    throw new Exception('SMTP HELO failed: ' . $mail->smtp->getError()['error']);
-                }
-            }
-            
             // Sender and recipient
             $mail->setFrom(EMAIL_FROM, EMAIL_NAME);
             $mail->addAddress(ADMIN_EMAIL);
