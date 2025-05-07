@@ -1,6 +1,7 @@
 <?php
-// Include email configuration
+// Include email configuration and SwiftMailer
 require_once 'includes/email-config.php';
+require_once 'lib/swift_required.php';
 
 // Set headers for API response
 header('Access-Control-Allow-Origin: *');
@@ -38,18 +39,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ob_start();
 
     // Get and sanitize form data
-    $name = filter_var($_POST['name'] ?? '', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $email = filter_var($_POST['email'] ?? '', FILTER_SANITIZE_EMAIL);
-    $subject = filter_var($_POST['subject'] ?? 'Contact Form Submission', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    $message = filter_var($_POST['message'] ?? '', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    
+    $name = htmlspecialchars(trim($_POST['name'] ?? ''));
+    $email = filter_var(trim($_POST['email'] ?? ''), FILTER_SANITIZE_EMAIL);
+    $subject = htmlspecialchars(trim($_POST['subject'] ?? 'Contact Form Submission'));
+    $message = htmlspecialchars(trim($_POST['message'] ?? ''));
+
     logDebug("Sanitized form data", [
         'name' => $name,
         'email' => $email,
         'subject' => $subject,
         'message' => substr($message, 0, 30) . '...'
     ]);
-    
+
     // Validate form data
     if (empty($name) || empty($email) || empty($message)) {
         logDebug("Validation failed - missing required fields");
@@ -58,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo json_encode(['status' => 'error', 'message' => 'Please fill in all required fields']);
         exit;
     }
-    
+
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         logDebug("Validation failed - invalid email: $email");
         ob_end_clean();
@@ -66,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo json_encode(['status' => 'error', 'message' => 'Invalid email address']);
         exit;
     }
-    
+
     // Save to CSV (as backup in case email fails)
     try {
         // Create directory if it doesn't exist
@@ -76,124 +77,70 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new Exception("Failed to create directory: $directory");
             }
         }
-        
+
         // Define CSV file path
         $csvFile = $directory . '/contact_submissions.csv';
         $fileExists = file_exists($csvFile);
-        
+
         // Open file for appending
         $handle = fopen($csvFile, 'a');
         if (!$handle) {
             throw new Exception("Could not open file: $csvFile");
         }
-        
+
         // Add headers if new file
         if (!$fileExists) {
             fputcsv($handle, ['Name', 'Email', 'Subject', 'Message', 'Timestamp']);
         }
-        
+
         // Write data
         $timestamp = date('Y-m-d H:i:s');
         fputcsv($handle, [$name, $email, $subject, $message, $timestamp]);
         fclose($handle);
-        
+
         logDebug("Form data saved to CSV file");
-        
+
         // Since we've saved to CSV, return success to the user
         // This ensures a good user experience regardless of email status
         ob_end_clean();
         http_response_code(200);
         echo json_encode(['status' => 'success', 'message' => 'Your message has been received. Thank you for contacting us!']);
-        
+
         // Now try to send email (after sending response to user)
         // This way, if email fails, the user doesn't have to wait
-        
-        // Continue processing email in the background
-        logDebug("Attempting email in background");
-        
-        // Force a valid hostname in the EHLO command and increase timeout
-        function sendEmailViaSMTP($to, $subject, $body, $from, $fromName, $replyTo) {
-            $smtpHost = SMTP_HOST;
-            $smtpPort = SMTP_PORT;
-            $smtpUser = SMTP_USER;
-            $smtpPass = SMTP_PASSWORD;
 
-            $socket = fsockopen($smtpHost, $smtpPort, $errno, $errstr, 60); // Increased timeout to 60 seconds
-            if (!$socket) {
-                logDebug("Failed to connect to SMTP server: $errstr ($errno)");
-                throw new Exception("Failed to connect to SMTP server: $errstr ($errno)");
-            }
-
-            function sendCommand($socket, $command, $expectedCode) {
-                fwrite($socket, $command . "\r\n");
-                $response = fgets($socket, 512);
-                logDebug("SMTP Command: $command", "Response: $response");
-                if (substr($response, 0, 3) != $expectedCode) {
-                    throw new Exception("SMTP error: $response");
-                }
-            }
-
-            // Read initial server response
-            $initialResponse = fgets($socket, 512);
-            logDebug("Initial server response", $initialResponse);
-
-            // Send EHLO with a valid domain name
-            $validHostname = 'smtp.hostinger.com'; // Replace with your domain name
-            sendCommand($socket, "EHLO $validHostname", 250);
-
-            // Start TLS if required
-            if (SMTP_SECURE === 'tls') {
-                sendCommand($socket, "STARTTLS", 220);
-                stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT);
-                sendCommand($socket, "EHLO $validHostname", 250);
-            }
-
-            // Authenticate
-            sendCommand($socket, "AUTH LOGIN", 334);
-            sendCommand($socket, base64_encode($smtpUser), 334);
-            sendCommand($socket, base64_encode($smtpPass), 235);
-
-            // Set sender
-            sendCommand($socket, "MAIL FROM:<$from>", 250);
-
-            // Set recipient
-            sendCommand($socket, "RCPT TO:<$to>", 250);
-
-            // Send data
-            sendCommand($socket, "DATA", 354);
-            $headers = "From: $fromName <$from>\r\n";
-            $headers .= "Reply-To: $replyTo\r\n";
-            $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
-            fwrite($socket, $headers . "\r\n" . $body . "\r\n.\r\n");
-            $response = fgets($socket, 512);
-            logDebug("SMTP DATA response", $response);
-            if (substr($response, 0, 3) != 250) {
-                throw new Exception("SMTP error: $response");
-            }
-
-            // Quit and close connection
-            sendCommand($socket, "QUIT", 221);
-            fclose($socket);
-        }
+        // Send email using SwiftMailer
+        logDebug("Attempting email using SwiftMailer");
 
         try {
-            sendEmailViaSMTP(
-                ADMIN_EMAIL,
-                "Contact Form: $subject",
-                "<html><body><h2>New Contact Form Submission</h2><p><strong>Name:</strong> $name</p><p><strong>Email:</strong> $email</p><p><strong>Subject:</strong> $subject</p><p><strong>Message:</strong></p><p>" . nl2br(htmlspecialchars($message)) . "</p></body></html>",
-                EMAIL_FROM,
-                EMAIL_NAME,
-                $email
-            );
-            logDebug("Email sent successfully using Direct SMTP");
+            // Setup transport
+            $transport = (new Swift_SmtpTransport(SMTP_HOST, SMTP_PORT, SMTP_SECURE))
+                ->setUsername(SMTP_USERNAME)
+                ->setPassword(SMTP_PASSWORD);
+
+            // Create mailer
+            $mailer = new Swift_Mailer($transport);
+
+            // Create message
+            $body = "<strong>Name:</strong> $name<br><strong>Email:</strong> $email<br><strong>Subject:</strong> $subject<br><strong>Message:</strong><br>" . nl2br($message);
+
+            $swiftMessage = (new Swift_Message("New Message from EazyHaven: $subject"))
+                ->setFrom([SMTP_USERNAME => 'EazyHaven Website'])
+                ->setTo([SMTP_USERNAME])
+                ->setReplyTo([$email => $name])
+                ->setBody($body, 'text/html');
+
+            $result = $mailer->send($swiftMessage);
+
+            if ($result) {
+                logDebug("Email sent successfully using SwiftMailer");
+            } else {
+                logDebug("Failed to send email via SwiftMailer");
+            }
         } catch (Exception $e) {
-            logDebug("Failed to send email via Direct SMTP", $e->getMessage());
-            ob_end_clean(); // Clear buffer
-            http_response_code(500);
-            echo json_encode(['status' => 'error', 'message' => 'Failed to send email. Please try again later.']);
-            exit;
+            logDebug("Failed to send email via SwiftMailer", $e->getMessage());
         }
-        
+
     } catch (Exception $e) {
         logDebug("Failed to save to CSV: " . $e->getMessage());
         ob_end_clean();
