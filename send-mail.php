@@ -111,36 +111,79 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Continue processing email in the background
         logDebug("Attempting email in background");
         
-        try {
-            // Prepare email headers
-            $headers = "From: " . EMAIL_NAME . " <" . EMAIL_FROM . ">\r\n";
-            $headers .= "Reply-To: $email\r\n";
-            $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
+        // Implement Direct SMTP to send emails
+        function sendEmailViaSMTP($to, $subject, $body, $from, $fromName, $replyTo) {
+            $smtpHost = SMTP_HOST;
+            $smtpPort = SMTP_PORT;
+            $smtpUser = SMTP_USER;
+            $smtpPass = SMTP_PASSWORD;
 
-            // Prepare email subject and body
-            $emailSubject = "Contact Form: $subject";
-            $emailBody = "<html><body>";
-            $emailBody .= "<h2>New Contact Form Submission</h2>";
-            $emailBody .= "<p><strong>Name:</strong> $name</p>";
-            $emailBody .= "<p><strong>Email:</strong> $email</p>";
-            $emailBody .= "<p><strong>Subject:</strong> $subject</p>";
-            $emailBody .= "<p><strong>Message:</strong></p>";
-            $emailBody .= "<p>" . nl2br(htmlspecialchars($message)) . "</p>";
-            $emailBody .= "</body></html>";
-
-            // Attempt to send email
-            if (mail(ADMIN_EMAIL, $emailSubject, $emailBody, $headers)) {
-                logDebug("Email sent successfully using mail() function");
-            } else {
-                logDebug("Failed to send email using mail() function");
-                ob_end_clean(); // Clear buffer
-                http_response_code(500);
-                echo json_encode(['status' => 'error', 'message' => 'Failed to send email. Please try again later.']);
-                exit;
+            $socket = fsockopen($smtpHost, $smtpPort, $errno, $errstr, 30);
+            if (!$socket) {
+                throw new Exception("Failed to connect to SMTP server: $errstr ($errno)");
             }
-            
+
+            // Helper function to send commands and read responses
+            function sendCommand($socket, $command, $expectedCode) {
+                fwrite($socket, $command . "\r\n");
+                $response = fgets($socket, 512);
+                if (substr($response, 0, 3) != $expectedCode) {
+                    throw new Exception("SMTP error: $response");
+                }
+            }
+
+            // Read initial server response
+            fgets($socket, 512);
+
+            // Send EHLO
+            sendCommand($socket, "EHLO " . gethostname(), 250);
+
+            // Start TLS if required
+            if (SMTP_SECURE === 'tls') {
+                sendCommand($socket, "STARTTLS", 220);
+                stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT);
+                sendCommand($socket, "EHLO " . gethostname(), 250);
+            }
+
+            // Authenticate
+            sendCommand($socket, "AUTH LOGIN", 334);
+            sendCommand($socket, base64_encode($smtpUser), 334);
+            sendCommand($socket, base64_encode($smtpPass), 235);
+
+            // Set sender
+            sendCommand($socket, "MAIL FROM:<$from>", 250);
+
+            // Set recipient
+            sendCommand($socket, "RCPT TO:<$to>", 250);
+
+            // Send data
+            sendCommand($socket, "DATA", 354);
+            $headers = "From: $fromName <$from>\r\n";
+            $headers .= "Reply-To: $replyTo\r\n";
+            $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
+            fwrite($socket, $headers . "\r\n" . $body . "\r\n.\r\n");
+            $response = fgets($socket, 512);
+            if (substr($response, 0, 3) != 250) {
+                throw new Exception("SMTP error: $response");
+            }
+
+            // Quit and close connection
+            sendCommand($socket, "QUIT", 221);
+            fclose($socket);
+        }
+
+        try {
+            sendEmailViaSMTP(
+                ADMIN_EMAIL,
+                "Contact Form: $subject",
+                "<html><body><h2>New Contact Form Submission</h2><p><strong>Name:</strong> $name</p><p><strong>Email:</strong> $email</p><p><strong>Subject:</strong> $subject</p><p><strong>Message:</strong></p><p>" . nl2br(htmlspecialchars($message)) . "</p></body></html>",
+                EMAIL_FROM,
+                EMAIL_NAME,
+                $email
+            );
+            logDebug("Email sent successfully using Direct SMTP");
         } catch (Exception $e) {
-            logDebug("Failed to send email", $e->getMessage());
+            logDebug("Failed to send email via Direct SMTP", $e->getMessage());
             ob_end_clean(); // Clear buffer
             http_response_code(500);
             echo json_encode(['status' => 'error', 'message' => 'Failed to send email. Please try again later.']);
