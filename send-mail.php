@@ -18,6 +18,11 @@ header('Access-Control-Allow-Headers: Content-Type');
 header('Content-Type: application/json');
 header('Cache-Control: no-cache, no-store, must-revalidate');
 
+// Enable detailed error reporting (only for debugging)
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 // Debug log file
 $logFile = 'debug_log.txt';
 file_put_contents($logFile, "Form submission received at " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
@@ -39,10 +44,10 @@ logDebug("POST array", $_POST);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Get and sanitize form data
-    $name = filter_var($_POST['name'] ?? '', FILTER_SANITIZE_STRING);
+    $name = filter_var($_POST['name'] ?? '', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     $email = filter_var($_POST['email'] ?? '', FILTER_SANITIZE_EMAIL);
-    $subject = filter_var($_POST['subject'] ?? 'Contact Form Submission', FILTER_SANITIZE_STRING);
-    $message = filter_var($_POST['message'] ?? '', FILTER_SANITIZE_STRING);
+    $subject = filter_var($_POST['subject'] ?? 'Contact Form Submission', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $message = filter_var($_POST['message'] ?? '', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     
     logDebug("Sanitized form data", [
         'name' => $name,
@@ -104,38 +109,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         try {
             // Server settings
-            $mail->SMTPDebug = SMTP::DEBUG_SERVER;                  // Enable verbose debug output (0 for no output)
-            $mail->isSMTP();                                        // Send using SMTP
-            $mail->Host       = SMTP_HOST;                          // Set the SMTP server to send through
-            $mail->SMTPAuth   = true;                               // Enable SMTP authentication
-            $mail->Username   = SMTP_USER;                          // SMTP username
-            $mail->Password   = SMTP_PASSWORD;                      // SMTP password
-            $mail->SMTPSecure = SMTP_SECURE;                        // Enable TLS/SSL encryption
-            $mail->Port       = SMTP_PORT;                          // TCP port to connect to
-            $mail->SMTPOptions = [
-                'ssl' => [
-                    'verify_peer' => false,
-                    'verify_peer_name' => false,
-                    'allow_self_signed' => true
-                ]
-            ];
-            
-            // Capture SMTP debug output
-            ob_start();
+            $mail->SMTPDebug = 3;                                // Enable verbose debug output
             $mail->Debugoutput = function($str, $level) {
                 logDebug("PHPMailer debug [$level]", $str);
             };
             
+            $mail->isSMTP();                                     // Send using SMTP
+            $mail->Host       = SMTP_HOST;                       // Set the SMTP server to send through
+            $mail->SMTPAuth   = true;                            // Enable SMTP authentication
+            $mail->Username   = SMTP_USER;                       // SMTP username
+            $mail->Password   = SMTP_PASSWORD;                   // SMTP password
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;     // Enable TLS/SSL encryption
+            $mail->Port       = SMTP_PORT;                       // TCP port to connect to
+            
             // Sender and recipient
             $mail->setFrom(EMAIL_FROM, EMAIL_NAME);
-            $mail->addAddress(ADMIN_EMAIL);                         // Add a recipient (admin)
-            $mail->addReplyTo($email, $name);                       // Reply to sender
+            $mail->addAddress(ADMIN_EMAIL);                     // Add a recipient (admin)
+            $mail->addReplyTo($email, $name);                   // Reply to sender
             
             // Content
-            $mail->isHTML(true);                                    // Set email format to HTML
+            $mail->isHTML(true);                                // Set email format to HTML
             $mail->Subject = "Contact Form: $subject";
             
-            // Create HTML and plaintext versions of the message
+            // Create message body
             $htmlMessage = "
             <html>
             <head>
@@ -185,81 +181,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $mail->send();
             logDebug("Email sent successfully");
             
-            // Send auto-reply to the user
-            $autoReply = new PHPMailer(true);
-            $autoReply->isSMTP();
-            $autoReply->Host       = SMTP_HOST;
-            $autoReply->SMTPAuth   = true;
-            $autoReply->Username   = SMTP_USER;
-            $autoReply->Password   = SMTP_PASSWORD;
-            $autoReply->SMTPSecure = SMTP_SECURE;
-            $autoReply->Port       = SMTP_PORT;
-            $autoReply->SMTPOptions = [
-                'ssl' => [
-                    'verify_peer' => false,
-                    'verify_peer_name' => false,
-                    'allow_self_signed' => true
-                ]
-            ];
-            
-            $autoReply->setFrom(EMAIL_FROM, EMAIL_NAME);
-            $autoReply->addAddress($email, $name);
-            
-            $autoReply->isHTML(true);
-            $autoReply->Subject = "Thank you for contacting EazyHaven";
-            
-            $autoReplyHtml = "
-            <html>
-            <head>
-                <title>Thank You for Contacting Us</title>
-                <style>
-                    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-                    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                    h2 { color: #2d3748; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-                    .message { margin-top: 20px; }
-                </style>
-            </head>
-            <body>
-                <div class='container'>
-                    <h2>Thank You for Contacting EazyHaven</h2>
-                    <p>Dear $name,</p>
-                    <div class='message'>
-                        <p>Thank you for reaching out to us. We have received your message and will get back to you as soon as possible.</p>
-                        <p>For your records, here is a copy of your message:</p>
-                        <p><strong>Subject:</strong> $subject</p>
-                        <p><strong>Message:</strong><br>" . nl2br(htmlspecialchars($message)) . "</p>
-                    </div>
-                    <p>Best regards,<br>The EazyHaven Team</p>
-                </div>
-            </body>
-            </html>
-            ";
-            
-            $autoReplyText = "
-            Thank You for Contacting EazyHaven
-            ----------------------------------
-            
-            Dear $name,
-            
-            Thank you for reaching out to us. We have received your message and will get back to you as soon as possible.
-            
-            For your records, here is a copy of your message:
-            
-            Subject: $subject
-            Message:
-            $message
-            
-            Best regards,
-            The EazyHaven Team
-            ";
-            
-            $autoReply->Body    = $autoReplyHtml;
-            $autoReply->AltBody = $autoReplyText;
-            
-            logDebug("Attempting to send auto-reply email");
-            $autoReply->send();
-            logDebug("Auto-reply email sent successfully");
-            
             // Return success response
             http_response_code(200);
             echo json_encode(['status' => 'success', 'message' => 'Your message has been received. Thank you for contacting us!']);
@@ -268,6 +189,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             logDebug("Failed to send email: " . $mail->ErrorInfo);
             
             // Email failed but we saved to CSV, so return success message
+            // This ensures the user still gets a positive experience even if the email fails
             http_response_code(200);
             echo json_encode(['status' => 'success', 'message' => 'Your message has been received. Thank you for contacting us!']);
         }
