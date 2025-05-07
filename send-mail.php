@@ -20,6 +20,9 @@ header('Cache-Control: no-cache, no-store, must-revalidate');
 
 // Debug log file
 $logFile = 'debug_log.txt';
+file_put_contents($logFile, "Form submission received at " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
+
+// Function to log data to the debug file
 function logDebug($message, $data = null) {
     global $logFile;
     $logMessage = date('Y-m-d H:i:s') . " - $message";
@@ -29,7 +32,10 @@ function logDebug($message, $data = null) {
     file_put_contents($logFile, $logMessage . "\n", FILE_APPEND);
 }
 
-file_put_contents($logFile, "Form submission received at " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
+// Log the request method and raw POST data for debugging
+logDebug("Request method", $_SERVER['REQUEST_METHOD']);
+logDebug("Raw POST data", file_get_contents('php://input'));
+logDebug("POST array", $_POST);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Get and sanitize form data
@@ -38,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $subject = filter_var($_POST['subject'] ?? 'Contact Form Submission', FILTER_SANITIZE_STRING);
     $message = filter_var($_POST['message'] ?? '', FILTER_SANITIZE_STRING);
     
-    logDebug("Received form data", [
+    logDebug("Sanitized form data", [
         'name' => $name,
         'email' => $email,
         'subject' => $subject,
@@ -91,121 +97,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         fclose($handle);
         
         logDebug("Form data saved to CSV file");
-    } catch (Exception $e) {
-        logDebug("Failed to save to CSV: " . $e->getMessage());
-        // Continue to email step - don't exit
-    }
-    
-    // Send emails using PHPMailer
-    try {
-        // VISITOR CONFIRMATION EMAIL
-        $mail = new PHPMailer(true);
         
-        // SMTP settings
-        $mail->isSMTP();
-        $mail->Host = SMTP_HOST;
-        $mail->SMTPAuth = true;
-        $mail->Username = SMTP_USER;
-        $mail->Password = SMTP_PASSWORD;
-        $mail->SMTPSecure = SMTP_SECURE;
-        $mail->Port = SMTP_PORT;
-        $mail->SMTPDebug = 0;
-        
-        // Email content
-        $mail->setFrom(EMAIL_FROM, EMAIL_NAME);
-        $mail->addAddress($email, $name);
-        $mail->isHTML(true);
-        $mail->Subject = "Thank you for contacting EazyHaven";
-        $mail->Body = "
-        <html>
-        <head>
-            <title>Thank You for Contacting EazyHaven</title>
-        </head>
-        <body>
-            <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
-                <div style='background-color: #86198f; padding: 20px; color: white; text-align: center;'>
-                    <h1>Thank You for Contacting Us!</h1>
-                </div>
-                <div style='padding: 20px; background-color: #f9f9f9;'>
-                    <p>Dear $name,</p>
-                    <p>Thank you for reaching out to EazyHaven. We have received your message and will get back to you as soon as possible.</p>
-                    <p>Here's a summary of your submission:</p>
-                    <ul>
-                        <li><strong>Name:</strong> $name</li>
-                        <li><strong>Email:</strong> $email</li>
-                        <li><strong>Subject:</strong> $subject</li>
-                        <li><strong>Message:</strong> $message</li>
-                    </ul>
-                    <p>We appreciate your interest in EazyHaven and look forward to connecting with you.</p>
-                    <p>Warm regards,<br>The EazyHaven Team</p>
-                </div>
-                <div style='background-color: #333; color: #999; padding: 15px; text-align: center; font-size: 12px;'>
-                    <p>&copy; " . date('Y') . " EazyHaven. All rights reserved.</p>
-                </div>
-            </div>
-        </body>
-        </html>";
-        
-        $mail->send();
-        logDebug("Confirmation email sent to visitor");
-        
-        // ADMIN NOTIFICATION EMAIL
-        $adminMail = new PHPMailer(true);
-        $adminMail->isSMTP();
-        $adminMail->Host = SMTP_HOST;
-        $adminMail->SMTPAuth = true;
-        $adminMail->Username = SMTP_USER;
-        $adminMail->Password = SMTP_PASSWORD;
-        $adminMail->SMTPSecure = SMTP_SECURE;
-        $adminMail->Port = SMTP_PORT;
-        
-        $adminMail->setFrom(EMAIL_FROM, 'EazyHaven Website');
-        $adminMail->addAddress(ADMIN_EMAIL, 'EazyHaven Admin');
-        $adminMail->addReplyTo($email, $name);
-        
-        $adminMail->isHTML(true);
-        $adminMail->Subject = "New Contact Form Submission from $name";
-        $adminMail->Body = "
-        <html>
-        <head>
-            <title>New Contact Form Submission</title>
-        </head>
-        <body>
-            <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
-                <div style='background-color: #86198f; padding: 20px; color: white; text-align: center;'>
-                    <h1>New Contact Form Submission</h1>
-                </div>
-                <div style='padding: 20px; background-color: #f9f9f9;'>
-                    <p>You have received a new contact form submission with the following details:</p>
-                    <ul>
-                        <li><strong>Name:</strong> $name</li>
-                        <li><strong>Email:</strong> $email</li>
-                        <li><strong>Subject:</strong> $subject</li>
-                        <li><strong>Message:</strong> $message</li>
-                        <li><strong>Submitted:</strong> $timestamp</li>
-                    </ul>
-                    <p>Please respond to this inquiry as soon as possible.</p>
-                </div>
-            </div>
-        </body>
-        </html>";
-        
-        $adminMail->send();
-        logDebug("Notification email sent to admin");
-        
-        // Success response
-        http_response_code(200);
-        echo json_encode(['status' => 'success', 'message' => 'Your message has been sent successfully!']);
-        
-    } catch (Exception $e) {
-        logDebug("Email sending failed: " . $e->getMessage());
-        
-        // Send success anyway since we saved to CSV
+        // Return success after saving to CSV - skip email sending for now
+        logDebug("Returning success response, skipping email send");
         http_response_code(200);
         echo json_encode(['status' => 'success', 'message' => 'Your message has been received. Thank you for contacting us!']);
+        exit;
+        
+    } catch (Exception $e) {
+        logDebug("Failed to save to CSV: " . $e->getMessage());
+        http_response_code(500);
+        echo json_encode(['status' => 'error', 'message' => 'Server error. Please try again later.']);
+        exit;
     }
-    
-    exit;
 } else {
     // Not a POST request
     logDebug("Invalid request method: " . $_SERVER['REQUEST_METHOD']);

@@ -1,0 +1,35 @@
+# OS specific files
+.DS_Store
+Thumbs.db
+
+# Editor folders and files
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Dependencies and build directories
+/node_modules/
+/vendor/
+
+# Logs
+/logs/
+*.log
+debug_log.txt
+
+# Environment files and sensitive credentials
+/includes/email-config.php
+.env
+*.env
+
+# Local configuration files
+config.local.php
+
+# Data directory (contains user submissions)
+/data/
+*.csv
+
+# Temporary files
+*.tmp
+*.temp
+.cache/

@@ -1,0 +1,16 @@
+<?php
+// Email configuration constants - EXAMPLE FILE
+// Rename this file to email-config.php and update with your actual credentials
+
+// SMTP server settings
+define('SMTP_HOST', 'your_smtp_server.com');  // e.g., smtp.hostinger.com
+define('SMTP_USER', 'your_email@example.com');
+define('SMTP_PASSWORD', 'your_password_here');
+define('SMTP_PORT', 465);  // Common ports: 465 (SSL) or 587 (TLS)
+define('SMTP_SECURE', 'ssl');  // Options: 'ssl', 'tls', or ''
+
+// Email sender information
+define('EMAIL_FROM', 'your_email@example.com');
+define('EMAIL_NAME', 'Your Website Name');
+define('ADMIN_EMAIL', 'admin@example.com');
+?>
