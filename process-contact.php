@@ -15,16 +15,6 @@ error_reporting(E_ALL);
 $logFile = 'debug_log.txt';
 file_put_contents($logFile, "Form submission received at " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
 
-// Include PHPMailer classes
-require_once 'includes/PHPMailer/Exception.php';
-require_once 'includes/PHPMailer/PHPMailer.php';
-require_once 'includes/PHPMailer/SMTP.php';
-
-// Import PHPMailer classes into the global namespace
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\SMTP;
-use PHPMailer\PHPMailer\Exception;
-
 // Function to log data to the debug file
 function logDebug($message, $data = null) {
     global $logFile;
@@ -106,160 +96,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         fclose($handle);
         
         logDebug("Form data saved to CSV file");
+        
+        // Skip email sending completely and return success
+        http_response_code(200);
+        echo json_encode(['status' => 'success', 'message' => 'Your message has been received. Thank you for contacting us!']);
+        logDebug("Returning success response without attempting to send email");
+        exit;
+        
     } catch (Exception $e) {
         logDebug("Failed to save data to CSV: " . $e->getMessage());
-        // Continue processing - don't exit here as we still want to try sending emails
+        http_response_code(500);
+        echo json_encode(['status' => 'error', 'message' => 'Server error. Please try again later.']);
+        exit;
     }
-
-    // First try to send email
-    $emailSent = false;
-    
-    try {
-        // SMTP Email Configuration
-        $smtpHost = 'smtp.hostinger.com';  // Replace with your SMTP server
-        $smtpUsername = 'no-reply@eazyhaven.com';  // Updated email username
-        $smtpPassword = 'E@$Y#@ven2025';  // Replace with your actual email password
-        $smtpPort = 465;  // Usually 587 for TLS or 465 for SSL
-        
-        logDebug("Starting email process with SMTP settings", [
-            'host' => $smtpHost,
-            'username' => $smtpUsername,
-            'port' => $smtpPort
-        ]);
-        
-        // Send confirmation email to the user using PHPMailer with SMTP
-        $userMail = new PHPMailer(true);
-        
-        // Server settings
-        $userMail->SMTPDebug = 3;  // Set to 3 for detailed debug output
-        ob_start(); // Start output buffering to capture debug output
-        
-        $userMail->isSMTP();
-        $userMail->Host       = $smtpHost;
-        $userMail->SMTPAuth   = true;
-        $userMail->Username   = $smtpUsername;
-        $userMail->Password   = $smtpPassword;
-        $userMail->Port       = $smtpPort;
-        $userMail->SMTPSecure = 'ssl';  // Try 'ssl' instead of PHPMailer::ENCRYPTION_SMTPS
-        
-        // Recipients
-        $userMail->setFrom('no-reply@eazyhaven.com', 'EazyHaven');
-        $userMail->addAddress($email, $name);
-        
-        // Content
-        $userMail->isHTML(true);
-        $userMail->Subject = "Thank you for contacting EazyHaven";
-        $userMail->Body = "
-        <html>
-        <head>
-            <title>Thank You for Contacting EazyHaven</title>
-        </head>
-        <body>
-            <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
-                <div style='background-color: #86198f; padding: 20px; color: white; text-align: center;'>
-                    <h1>Thank You for Contacting Us!</h1>
-                </div>
-                <div style='padding: 20px; background-color: #f9f9f9;'>
-                    <p>Dear $name,</p>
-                    <p>Thank you for reaching out to EazyHaven. We have received your message and will get back to you as soon as possible.</p>
-                    <p>Here's a summary of your submission:</p>
-                    <ul>
-                        <li><strong>Name:</strong> $name</li>
-                        <li><strong>Email:</strong> $email</li>
-                        <li><strong>Subject:</strong> $subject</li>
-                        <li><strong>Message:</strong> $message</li>
-                    </ul>
-                    <p>We appreciate your interest in EazyHaven and look forward to connecting with you.</p>
-                    <p>Warm regards,<br>The EazyHaven Team</p>
-                </div>
-                <div style='background-color: #333; color: #999; padding: 15px; text-align: center; font-size: 12px;'>
-                    <p>&copy; " . date('Y') . " EazyHaven. All rights reserved.</p>
-                </div>
-            </div>
-        </body>
-        </html>";
-        
-        $userMail->send();
-        $debugOutput = ob_get_clean(); // Get the debug output and stop buffering
-        logDebug("User confirmation email sent successfully. Debug output:", $debugOutput);
-        
-        $emailSent = true;
-    } catch (Exception $e) {
-        $debugOutput = ob_get_clean(); // Get the debug output and stop buffering
-        
-        // Log the error for debugging
-        logDebug("SMTP Mailer Error: " . $e->getMessage());
-        logDebug("SMTP Debug Output: " . $debugOutput);
-        
-        // Try using the built-in mail() function as fallback
-        try {
-            logDebug("Trying PHP mail() function as fallback");
-            
-            // Set email headers
-            $headers = "From: EazyHaven <no-reply@eazyhaven.com>\r\n";
-            $headers .= "Reply-To: no-reply@eazyhaven.com\r\n";
-            $headers .= "MIME-Version: 1.0\r\n";
-            $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
-            
-            // Set email body
-            $emailBody = "
-            <html>
-            <head>
-                <title>Thank You for Contacting EazyHaven</title>
-            </head>
-            <body>
-                <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
-                    <div style='background-color: #86198f; padding: 20px; color: white; text-align: center;'>
-                        <h1>Thank You for Contacting Us!</h1>
-                    </div>
-                    <div style='padding: 20px; background-color: #f9f9f9;'>
-                        <p>Dear $name,</p>
-                        <p>Thank you for reaching out to EazyHaven. We have received your message and will get back to you as soon as possible.</p>
-                        <p>Here's a summary of your submission:</p>
-                        <ul>
-                            <li><strong>Name:</strong> $name</li>
-                            <li><strong>Email:</strong> $email</li>
-                            <li><strong>Subject:</strong> $subject</li>
-                            <li><strong>Message:</strong> $message</li>
-                        </ul>
-                        <p>We appreciate your interest in EazyHaven and look forward to connecting with you.</p>
-                        <p>Warm regards,<br>The EazyHaven Team</p>
-                    </div>
-                    <div style='background-color: #333; color: #999; padding: 15px; text-align: center; font-size: 12px;'>
-                        <p>&copy; " . date('Y') . " EazyHaven. All rights reserved.</p>
-                    </div>
-                </div>
-            </body>
-            </html>";
-            
-            // Send email using mail() function
-            $mailSent = mail($email, "Thank you for contacting EazyHaven", $emailBody, $headers);
-            
-            if ($mailSent) {
-                logDebug("Email sent successfully using PHP mail() function");
-                $emailSent = true;
-            } else {
-                logDebug("Failed to send email using PHP mail() function");
-                throw new Exception("Failed to send email using PHP mail() function");
-            }
-        } catch (Exception $mailException) {
-            logDebug("PHP mail() Error: " . $mailException->getMessage());
-            // We'll handle this in the next block
-        }
-    }
-    
-    // Return appropriate response based on whether email was sent or not
-    if ($emailSent) {
-        // Return a success response
-        http_response_code(200);
-        echo json_encode(['status' => 'success', 'message' => 'Your message has been sent successfully!']);
-    } else {
-        // If email sending failed, still return a success response since we saved the data to CSV
-        logDebug("Email sending failed, but data was saved to CSV");
-        http_response_code(200); // Still return 200 to avoid confusion for the user
-        echo json_encode(['status' => 'success', 'message' => 'Your message has been received. Thank you for contacting us!']);
-    }
-    exit;
 } else {
     // If not a POST request, return an error
     logDebug("Invalid request method: " . $_SERVER['REQUEST_METHOD']);

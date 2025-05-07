@@ -45,8 +45,8 @@ document.addEventListener('DOMContentLoaded', function() {
             formData.append('subject', subject);
             formData.append('message', message);
             
-            // Use fetch API to submit form
-            fetch('process-contact.php', {
+            // Use fetch API to submit form - Using the new send-mail.php endpoint
+            fetch('send-mail.php', {
                 method: 'POST',
                 body: formData
             })
