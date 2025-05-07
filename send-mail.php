@@ -43,6 +43,9 @@ logDebug("Raw POST data", file_get_contents('php://input'));
 logDebug("POST array", $_POST);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Start output buffering to suppress unintended output
+    ob_start();
+
     // Get and sanitize form data
     $name = filter_var($_POST['name'] ?? '', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     $email = filter_var($_POST['email'] ?? '', FILTER_SANITIZE_EMAIL);
@@ -59,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Validate form data
     if (empty($name) || empty($email) || empty($message)) {
         logDebug("Validation failed - missing required fields");
-        ob_clean();
+        ob_end_clean();
         http_response_code(400);
         echo json_encode(['status' => 'error', 'message' => 'Please fill in all required fields']);
         exit;
@@ -67,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         logDebug("Validation failed - invalid email: $email");
-        ob_clean();
+        ob_end_clean();
         http_response_code(400);
         echo json_encode(['status' => 'error', 'message' => 'Invalid email address']);
         exit;
@@ -107,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         // Since we've saved to CSV, return success to the user
         // This ensures a good user experience regardless of email status
-        ob_clean();
+        ob_end_clean();
         http_response_code(200);
         echo json_encode(['status' => 'success', 'message' => 'Your message has been received. Thank you for contacting us!']);
         
@@ -217,11 +220,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 logDebug("Email sent successfully");
             } else {
                 logDebug("Mailer Error", $mail->ErrorInfo);
+                throw new Exception("Mailer Error: " . $mail->ErrorInfo);
             }
             
         } catch (Exception $e) {
-            logDebug("Failed to send email", $e->getMessage() . " - " . (isset($mail) ? $mail->ErrorInfo : 'No mailer instance'));
-            ob_clean();
+            logDebug("Failed to send email", $e->getMessage());
+            ob_end_clean(); // Clear buffer
             http_response_code(500);
             echo json_encode(['status' => 'error', 'message' => 'Failed to send email. Please try again later.']);
             exit;
@@ -229,14 +233,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
     } catch (Exception $e) {
         logDebug("Failed to save to CSV: " . $e->getMessage());
-        ob_clean();
+        ob_end_clean();
         http_response_code(500);
         echo json_encode(['status' => 'error', 'message' => 'Server error. Please try again later.']);
     }
 } else {
-    // Not a POST request
-    logDebug("Invalid request method: " . $_SERVER['REQUEST_METHOD']);
-    ob_clean();
+    // Ensure no extra output
+    ob_end_clean();
     http_response_code(405);
     echo json_encode(['status' => 'error', 'message' => 'Method not allowed']);
     exit;

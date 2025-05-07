@@ -52,9 +52,13 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(response => {
                 console.log('Response status:', response.status);
-                return response.json().catch(e => {
-                    console.error('JSON parse error:', e);
-                    throw new Error('Invalid JSON response from server');
+                return response.text().then(text => {
+                    try {
+                        return JSON.parse(text);
+                    } catch (e) {
+                        console.error('JSON parse error:', e, 'Response text:', text);
+                        throw new Error('Invalid JSON response from server');
+                    }
                 });
             })
             .then(data => {
@@ -157,7 +161,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Email validation function
     function validateEmail(email) {
-        const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         return re.test(String(email).toLowerCase());
     }
     
