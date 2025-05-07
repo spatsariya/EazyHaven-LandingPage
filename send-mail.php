@@ -121,18 +121,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         logDebug("Attempting email in background");
         
         try {
-            // Send email using PHPMailer
+            // Initialize PHPMailer
             logDebug("Initializing PHPMailer");
             $mail = new PHPMailer(true); // true enables exceptions
             
             // Debug settings
-            $mail->SMTPDebug = SMTP::DEBUG_SERVER; // Set to DEBUG_OFF in production
+            $mail->SMTPDebug = SMTP::DEBUG_OFF; // Set to DEBUG_OFF in production
             $mail->Debugoutput = function ($str, $level) {
                 logDebug("PHPMailer debug [$level]", $str);
             };
             
             // Server settings
-            $mail->isSMTP();
+            $mail->isSMTP(); // Ensure this method exists in your PHPMailer version
             $mail->Host = SMTP_HOST;
             $mail->SMTPAuth = true;
             $mail->Username = SMTP_USER;
