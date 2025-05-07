@@ -2,15 +2,6 @@
 // Include email configuration
 require_once 'includes/email-config.php';
 
-// Include PHPMailer classes
-require_once 'includes/PHPMailer/Exception.php';
-require_once 'includes/PHPMailer/PHPMailer.php';
-require_once 'includes/PHPMailer/SMTP.php';
-
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\SMTP;
-use PHPMailer\PHPMailer\Exception;
-
 // Set headers for API response
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST');
@@ -121,132 +112,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         logDebug("Attempting email in background");
         
         try {
-            // Initialize PHPMailer
-            logDebug("Initializing PHPMailer");
-            $mail = new PHPMailer(true); // true enables exceptions
-            
-            // Debug settings
-            $mail->SMTPDebug = SMTP::DEBUG_SERVER; // Set to DEBUG_SERVER for detailed logs
-            $mail->Debugoutput = function ($str, $level) {
-                logDebug("PHPMailer debug [$level]", $str);
-            };
-            
-            // Server settings
-            if (method_exists($mail, 'isSMTP')) {
-                $mail->isSMTP(); // Use isSMTP() only if it exists
-                logDebug("isSMTP() method called successfully");
+            // Prepare email headers
+            $headers = "From: " . EMAIL_NAME . " <" . EMAIL_FROM . ">\r\n";
+            $headers .= "Reply-To: $email\r\n";
+            $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
+
+            // Prepare email subject and body
+            $emailSubject = "Contact Form: $subject";
+            $emailBody = "<html><body>";
+            $emailBody .= "<h2>New Contact Form Submission</h2>";
+            $emailBody .= "<p><strong>Name:</strong> $name</p>";
+            $emailBody .= "<p><strong>Email:</strong> $email</p>";
+            $emailBody .= "<p><strong>Subject:</strong> $subject</p>";
+            $emailBody .= "<p><strong>Message:</strong></p>";
+            $emailBody .= "<p>" . nl2br(htmlspecialchars($message)) . "</p>";
+            $emailBody .= "</body></html>";
+
+            // Attempt to send email
+            if (mail(ADMIN_EMAIL, $emailSubject, $emailBody, $headers)) {
+                logDebug("Email sent successfully using mail() function");
             } else {
-                logDebug("isSMTP() method not available in PHPMailer version");
-                $mail->Mailer = 'smtp';
-            }
-            
-            $mail->Host = SMTP_HOST;
-            $mail->SMTPAuth = true;
-            $mail->Username = SMTP_USER;
-            $mail->Password = SMTP_PASSWORD;
-            $mail->SMTPSecure = SMTP_SECURE;
-            $mail->Port = SMTP_PORT;
-            
-            // Set timeout to prevent long waits
-            $mail->Timeout = 10;
-            
-            // Add extra options for compatibility
-            $mail->SMTPOptions = [
-                'ssl' => [
-                    'verify_peer' => false,
-                    'verify_peer_name' => false,
-                    'allow_self_signed' => true,
-                ],
-            ];
-            
-            logDebug("SMTP settings configured", [
-                'host' => SMTP_HOST,
-                'port' => SMTP_PORT,
-                'secure' => SMTP_SECURE,
-                'username' => SMTP_USER,
-            ]);
-            
-            // Add fallback to HELO if EHLO fails
-            try {
-                if (!$mail->smtp->hello(gethostname())) {
-                    logDebug("EHLO failed, attempting HELO");
-                    if (!$mail->smtp->sendCommand('HELO', 'HELO ' . gethostname(), 250)) {
-                        throw new Exception('SMTP HELO failed: ' . $mail->smtp->getError()['error']);
-                    }
-                }
-            } catch (Exception $e) {
-                logDebug("SMTP handshake failed", $e->getMessage());
-                throw $e;
-            }
-            
-            // Sender and recipient
-            $mail->setFrom(EMAIL_FROM, EMAIL_NAME);
-            $mail->addAddress(ADMIN_EMAIL);
-            $mail->addReplyTo($email, $name);
-            
-            // Content
-            if (method_exists($mail, 'isHTML')) {
-                $mail->isHTML(true); // Use isHTML() only if it exists
-                logDebug("isHTML() method called successfully");
-            } else {
-                logDebug("isHTML() method not available in PHPMailer version");
-                $mail->ContentType = 'text/html'; // Fallback for HTML emails
-            }
-            $mail->Subject = "Contact Form: $subject";
-            
-            // Create message body
-            $htmlMessage = "
-            <html>
-            <head>
-                <title>Contact Form Submission</title>
-                <style>
-                    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-                    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                    h2 { color: #2d3748; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-                    .info { margin-bottom: 20px; }
-                    .info strong { color: #2d3748; }
-                    .message { background-color: #f9f9f9; padding: 15px; border-left: 4px solid #2d3748; }
-                </style>
-            </head>
-            <body>
-                <div class='container'>
-                    <h2>New Contact Form Submission</h2>
-                    <div class='info'>
-                        <p><strong>Name:</strong> $name</p>
-                        <p><strong>Email:</strong> $email</p>
-                        <p><strong>Subject:</strong> $subject</p>
-                    </div>
-                    <div class='message'>
-                        <p><strong>Message:</strong></p>
-                        <p>" . nl2br(htmlspecialchars($message)) . "</p>
-                    </div>
-                </div>
-            </body>
-            </html>
-            ";
-            
-            $plainMessage = "
-            New Contact Form Submission
-            --------------------------
-            
-            Name: $name
-            Email: $email
-            Subject: $subject
-            
-            Message:
-            $message
-            ";
-            
-            $mail->Body = $htmlMessage;
-            $mail->AltBody = $plainMessage;
-            
-            logDebug("Attempting to send email");
-            
-            if ($mail->send()) {
-                logDebug("Email sent successfully");
-            } else {
-                logDebug("Mailer Error", $mail->ErrorInfo);
-                throw new Exception("Mailer Error: " . $mail->ErrorInfo);
+                logDebug("Failed to send email using mail() function");
+                ob_end_clean(); // Clear buffer
+                http_response_code(500);
+                echo json_encode(['status' => 'error', 'message' => 'Failed to send email. Please try again later.']);
+                exit;
             }
             
         } catch (Exception $e) {
