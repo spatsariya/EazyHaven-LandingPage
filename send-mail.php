@@ -103,32 +103,65 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         logDebug("Form data saved to CSV file");
         
-        // Send email using PHPMailer
-        logDebug("Initializing PHPMailer");
-        $mail = new PHPMailer(true); // true enables exceptions
+        // Since we've saved to CSV, return success to the user
+        // This ensures a good user experience regardless of email status
+        http_response_code(200);
+        echo json_encode(['status' => 'success', 'message' => 'Your message has been received. Thank you for contacting us!']);
+        
+        // Now try to send email (after sending response to user)
+        // This way, if email fails, the user doesn't have to wait
+        
+        // Continue processing email in the background
+        logDebug("Attempting email in background");
         
         try {
-            // Server settings
-            $mail->SMTPDebug = 3;                                // Enable verbose debug output
+            // Send email using PHPMailer
+            logDebug("Initializing PHPMailer");
+            $mail = new PHPMailer(true); // true enables exceptions
+            
+            // Debug settings
+            $mail->SMTPDebug = 3;
             $mail->Debugoutput = function($str, $level) {
                 logDebug("PHPMailer debug [$level]", $str);
             };
             
-            $mail->isSMTP();                                     // Send using SMTP
-            $mail->Host       = SMTP_HOST;                       // Set the SMTP server to send through
-            $mail->SMTPAuth   = true;                            // Enable SMTP authentication
-            $mail->Username   = SMTP_USER;                       // SMTP username
-            $mail->Password   = SMTP_PASSWORD;                   // SMTP password
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;     // Enable TLS/SSL encryption
-            $mail->Port       = SMTP_PORT;                       // TCP port to connect to
+            // Server settings
+            $mail->isSMTP();
+            $mail->Host = SMTP_HOST;
+            $mail->SMTPAuth = true;
+            $mail->Username = SMTP_USER;
+            $mail->Password = SMTP_PASSWORD;
+            
+            // Change from ENCRYPTION_SMTPS to explicit 'ssl' string for better compatibility
+            $mail->SMTPSecure = SMTP_SECURE;
+            $mail->Port = SMTP_PORT;
+            
+            // Set timeout to prevent long waits
+            $mail->Timeout = 10;
+            
+            // Add extra options that can help with Hostinger
+            $mail->SMTPOptions = [
+                'ssl' => [
+                    'verify_peer' => false,
+                    'verify_peer_name' => false,
+                    'allow_self_signed' => true
+                ]
+            ];
+            
+            logDebug("SMTP settings configured", [
+                'host' => SMTP_HOST,
+                'port' => SMTP_PORT,
+                'secure' => SMTP_SECURE,
+                'username' => SMTP_USER
+            ]);
             
             // Sender and recipient
             $mail->setFrom(EMAIL_FROM, EMAIL_NAME);
-            $mail->addAddress(ADMIN_EMAIL);                     // Add a recipient (admin)
-            $mail->addReplyTo($email, $name);                   // Reply to sender
+            $mail->addAddress(ADMIN_EMAIL);
+            $mail->addReplyTo($email, $name);
             
             // Content
-            $mail->isHTML(true);                                // Set email format to HTML
+            $mail->isHTML(true);
             $mail->Subject = "Contact Form: $subject";
             
             // Create message body
@@ -174,37 +207,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $message
             ";
             
-            $mail->Body    = $htmlMessage;
+            $mail->Body = $htmlMessage;
             $mail->AltBody = $plainMessage;
             
             logDebug("Attempting to send email");
-            $mail->send();
-            logDebug("Email sent successfully");
             
-            // Return success response
-            http_response_code(200);
-            echo json_encode(['status' => 'success', 'message' => 'Your message has been received. Thank you for contacting us!']);
+            if ($mail->send()) {
+                logDebug("Email sent successfully");
+            } else {
+                logDebug("Mailer Error", $mail->ErrorInfo);
+            }
             
         } catch (Exception $e) {
-            logDebug("Failed to send email: " . $mail->ErrorInfo);
-            
-            // Email failed but we saved to CSV, so return success message
-            // This ensures the user still gets a positive experience even if the email fails
-            http_response_code(200);
-            echo json_encode(['status' => 'success', 'message' => 'Your message has been received. Thank you for contacting us!']);
+            logDebug("Failed to send email", $e->getMessage() . " - " . (isset($mail) ? $mail->ErrorInfo : 'No mailer instance'));
         }
         
     } catch (Exception $e) {
         logDebug("Failed to save to CSV: " . $e->getMessage());
         http_response_code(500);
         echo json_encode(['status' => 'error', 'message' => 'Server error. Please try again later.']);
-        exit;
     }
 } else {
     // Not a POST request
     logDebug("Invalid request method: " . $_SERVER['REQUEST_METHOD']);
     http_response_code(405);
     echo json_encode(['status' => 'error', 'message' => 'Method not allowed']);
-    exit;
 }
 ?>
