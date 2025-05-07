@@ -111,7 +111,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Continue processing email in the background
         logDebug("Attempting email in background");
         
-        // Implement Direct SMTP to send emails
+        // Enhance debugging and ensure proper SMTP command handling
         function sendEmailViaSMTP($to, $subject, $body, $from, $fromName, $replyTo) {
             $smtpHost = SMTP_HOST;
             $smtpPort = SMTP_PORT;
@@ -120,20 +120,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $socket = fsockopen($smtpHost, $smtpPort, $errno, $errstr, 30);
             if (!$socket) {
+                logDebug("Failed to connect to SMTP server: $errstr ($errno)");
                 throw new Exception("Failed to connect to SMTP server: $errstr ($errno)");
             }
 
-            // Helper function to send commands and read responses
             function sendCommand($socket, $command, $expectedCode) {
                 fwrite($socket, $command . "\r\n");
                 $response = fgets($socket, 512);
+                logDebug("SMTP Command: $command", "Response: $response");
                 if (substr($response, 0, 3) != $expectedCode) {
                     throw new Exception("SMTP error: $response");
                 }
             }
 
             // Read initial server response
-            fgets($socket, 512);
+            $initialResponse = fgets($socket, 512);
+            logDebug("Initial server response", $initialResponse);
 
             // Send EHLO
             sendCommand($socket, "EHLO " . gethostname(), 250);
@@ -163,6 +165,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
             fwrite($socket, $headers . "\r\n" . $body . "\r\n.\r\n");
             $response = fgets($socket, 512);
+            logDebug("SMTP DATA response", $response);
             if (substr($response, 0, 3) != 250) {
                 throw new Exception("SMTP error: $response");
             }
