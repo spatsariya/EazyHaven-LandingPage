@@ -19,10 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const subject = document.getElementById('subject').value;
             const message = document.getElementById('message').value;
             
-            // Get hCaptcha response
-            const hcaptchaResponse = hcaptcha.getResponse();
-            
-            console.log('Form submission data:', { name, email, subject, message: message.substring(0, 20) + '...', captchaResponse: hcaptchaResponse ? 'provided' : 'missing' });
+            console.log('Form submission data:', { name, email, subject, message: message.substring(0, 20) + '...' });
             
             // Form validation
             if (!name || !email || !message) {
@@ -32,12 +29,6 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (!validateEmail(email)) {
                 showContactMessage('Please enter a valid email address.', 'error');
-                return;
-            }
-            
-            // hCaptcha validation
-            if (!hcaptchaResponse) {
-                showContactMessage('Please complete the CAPTCHA verification.', 'error');
                 return;
             }
             
@@ -53,7 +44,6 @@ document.addEventListener('DOMContentLoaded', function() {
             formData.append('email', email);
             formData.append('subject', subject);
             formData.append('message', message);
-            formData.append('h-captcha-response', hcaptchaResponse);
             
             // Use fetch API to submit form
             fetch('process-contact.php', {
@@ -73,11 +63,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     showContactMessage(data.message, 'success');
                     contactForm.reset();
                     
-                    // Reset hCaptcha
-                    if (typeof hcaptcha !== 'undefined') {
-                        hcaptcha.reset();
-                    }
-                    
                     // Redirect to thank you page after a brief delay
                     setTimeout(() => {
                         window.location.href = 'thank-you.html';
@@ -85,21 +70,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else {
                     showContactMessage(data.message || 'There was an error sending your message.', 'error');
                     console.error('Form submission error:', data);
-                    
-                    // Reset hCaptcha
-                    if (typeof hcaptcha !== 'undefined') {
-                        hcaptcha.reset();
-                    }
                 }
             })
             .catch(error => {
                 console.error('Form submission error:', error);
                 showContactMessage('There was an error sending your message. Please try again later.', 'error');
-                
-                // Reset hCaptcha
-                if (typeof hcaptcha !== 'undefined') {
-                    hcaptcha.reset();
-                }
             })
             .finally(() => {
                 // Re-enable the submit button

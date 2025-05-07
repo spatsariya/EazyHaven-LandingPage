@@ -67,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo json_encode(['status' => 'error', 'message' => 'Invalid email address']);
         exit;
     }
-
+    
     // Create directory if it doesn't exist
     $directory = 'data';
     if (!file_exists($directory)) {
@@ -109,64 +109,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } catch (Exception $e) {
         logDebug("Failed to save data to CSV: " . $e->getMessage());
         // Continue processing - don't exit here as we still want to try sending emails
-    }
-
-    // SMTP Email Configuration
-    $smtpHost = 'smtp.hostinger.com';  // Replace with your SMTP server
-    $smtpUsername = 'contact@eazyhaven.com';  // Replace with your email username
-    $smtpPassword = 'E@$Y#@ven2025';  // Replace with your actual email password
-    $smtpPort = 465;  // Usually 587 for TLS or 465 for SSL
-    
-    logDebug("Starting email process with SMTP settings", [
-        'host' => $smtpHost,
-        'username' => $smtpUsername,
-        'port' => $smtpPort
-    ]);
-    
-    // Send confirmation email to the user using PHPMailer with SMTP
-    try {
-        $userMail = new PHPMailer(true);
-        
-        // Server settings
-        $userMail->SMTPDebug = 3;  // Set to 3 for detailed debug output
-        ob_start(); // Start output buffering to capture debug output
-        
-        $userMail->isSMTP();
-        $userMail->Host       = $smtpHost;
-        $userMail->SMTPAuth   = true;
-        $userMail->Username   = $smtpUsername;
-        $userMail->Password   = $smtpPassword;
-        $userMail->Port       = $smtpPort;
-        $userMail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;  // Use PHPMailer::ENCRYPTION_STARTTLS or PHPMailer::ENCRYPTION_SMTPS
-        
-        // Recipients
-        $userMail->setFrom('contact@eazyhaven.com', 'EazyHaven');
-        $userMail->addAddress($email, $name);
-        
-        // Content
-        $userMail->isHTML(true);
-        $userMail->Subject = "Thank you for contacting EazyHaven";
-        $userMail->Body = "
-        <html>
-        <head>
-            <title>Thank You for Contacting EazyHaven</title>
-        </head>
-        <body>
-            <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
-                <div style='background-color: #86198f; padding: 20px; color: white; text-align: center;'>
-                    <h1>Thank You for Contacting Us!</h1>
-                </div>
-                <div style='padding: 20px; background-color: #f9f9f9;'>
-                    <p>Dear $name,</p>
-                    <p>Thank you for reaching out to EazyHaven. We have received your message and will get back to you as soon as possible.</p>
-                    <p>Here's a summary of your submission:</p>
-                    <ul>
-                        <li><strong>Name:</strong> $name</li>
-                        <li><strong>Email:</strong> $email</li>
-                        <li><strong>Subject:</strong> $subject</li>
-                        <li><strong>Message:</strong> $message</li>
-                    </ul>
-                    <p>We appreciate your interest in EazyHaven and look forward to connecting with you.</p>
     }
 
     // SMTP Email Configuration
