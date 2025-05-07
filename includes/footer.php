@@ -33,20 +33,20 @@
                     <ul class="space-y-2 text-gray-400">
                         <li class="flex items-start">
                             <i class="fas fa-map-marker-alt mt-1 mr-2 text-brand-dark"></i>
-                            <span>123 Beauty Street, Skincare City, SC 12345</span>
+                            <span>Canada | U.S.A | Mexico</span>
                         </li>
                         <li class="flex items-center">
                             <i class="fas fa-envelope mr-2 text-brand-dark"></i>
                             <span>contact@eazyhaven.com</span>
                         </li>
-                        <li class="flex items-center">
-                            <i class="fas fa-envelope-open-text mr-2 text-brand-dark"></i>
-                            <span>newsletter@eazyhaven.com</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="fas fa-phone mr-2 text-brand-dark"></i>
-                            <span>(123) 456-7890</span>
-                        </li>
+                        <!--<li class="flex items-center">-->
+                        <!--    <i class="fas fa-envelope-open-text mr-2 text-brand-dark"></i>-->
+                        <!--    <span>newsletter@eazyhaven.com</span>-->
+                        <!--</li>-->
+                        <!--<li class="flex items-center">-->
+                        <!--    <i class="fas fa-phone mr-2 text-brand-dark"></i>-->
+                        <!--    <span>(647) 333-9098</span>-->
+                        <!--</li>-->
                     </ul>
                     <div class="flex space-x-4 mt-4">
                         <a href="#" class="text-gray-400 hover:text-brand-dark transition duration-300">
@@ -65,7 +65,7 @@
                 </div>
             </div>
             <div class="border-t border-gray-800 pt-8 text-center">
-                <p class="text-gray-500">&copy; <?php echo date('Y'); ?> EazyHaven. All rights reserved.</p>
+                <p class="text-gray-500">&copy; <?php echo date('Y'); ?> EazyHaven. All rights reserved. Designed & Developed by <a href="https://omnican.ca/">OmniCan</a></p>
             </div>
         </div>
     </footer>
