@@ -45,14 +45,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = filter_var($_POST['email'] ?? '', FILTER_SANITIZE_EMAIL);
     $subject = filter_var($_POST['subject'] ?? 'Contact Form Submission', FILTER_SANITIZE_STRING);
     $message = filter_var($_POST['message'] ?? '', FILTER_SANITIZE_STRING);
-    $hcaptchaResponse = $_POST['h-captcha-response'] ?? '';
     
     logDebug("Sanitized form data", [
         'name' => $name,
         'email' => $email,
         'subject' => $subject,
-        'message' => substr($message, 0, 30) . '...',
-        'hcaptchaResponse' => !empty($hcaptchaResponse) ? 'provided' : 'missing'
+        'message' => substr($message, 0, 30) . '...'
     ]);
     
     // Validate form data
@@ -70,62 +68,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // hCaptcha verification - temporarily skip for debugging
-    if (empty($hcaptchaResponse)) {
-        logDebug("Form validation failed - missing hCaptcha response");
-        http_response_code(400);
-        echo json_encode(['status' => 'error', 'message' => 'Please complete the CAPTCHA verification']);
-        exit;
-    }
-
-    // hCaptcha verification request
-    $hcaptchaSecretKey = '0xb5Fb8089A41A15b857985BE23923b5C20Ec12A3a'; // Updated secret key that matches your site key
-    $verifyUrl = 'https://hcaptcha.com/siteverify';
-    
-    $data = [
-        'secret' => $hcaptchaSecretKey,
-        'response' => $hcaptchaResponse,
-        'remoteip' => $_SERVER['REMOTE_ADDR']
-    ];
-
-    logDebug("Verifying hCaptcha with data", [
-        'secret' => substr($hcaptchaSecretKey, 0, 5) . '...',
-        'response' => substr($hcaptchaResponse, 0, 10) . '...',
-        'remoteip' => $_SERVER['REMOTE_ADDR']
-    ]);
-
-    $options = [
-        'http' => [
-            'header' => "Content-type: application/x-www-form-urlencoded\r\n",
-            'method' => 'POST',
-            'content' => http_build_query($data)
-        ]
-    ];
-
-    $context = stream_context_create($options);
-    
-    try {
-        $verifyResponse = file_get_contents($verifyUrl, false, $context);
-        $responseData = json_decode($verifyResponse);
-        logDebug("hCaptcha verification response", $responseData);
-    } catch (Exception $e) {
-        logDebug("hCaptcha verification failed with exception", $e->getMessage());
-        http_response_code(500);
-        echo json_encode(['status' => 'error', 'message' => 'CAPTCHA verification service unavailable']);
-        exit;
-    }
-
-    // TEMPORARY FOR DEBUGGING: Skip hCaptcha verification failure
-    // In production, you should uncomment the following block
-    /*
-    if (!$responseData || !$responseData->success) {
-        logDebug("hCaptcha verification failed with response", $responseData);
-        http_response_code(400);
-        echo json_encode(['status' => 'error', 'message' => 'CAPTCHA verification failed. Please try again.']);
-        exit;
-    }
-    */
-    
     // Create directory if it doesn't exist
     $directory = 'data';
     if (!file_exists($directory)) {
@@ -167,6 +109,64 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } catch (Exception $e) {
         logDebug("Failed to save data to CSV: " . $e->getMessage());
         // Continue processing - don't exit here as we still want to try sending emails
+    }
+
+    // SMTP Email Configuration
+    $smtpHost = 'smtp.hostinger.com';  // Replace with your SMTP server
+    $smtpUsername = 'contact@eazyhaven.com';  // Replace with your email username
+    $smtpPassword = 'E@$Y#@ven2025';  // Replace with your actual email password
+    $smtpPort = 465;  // Usually 587 for TLS or 465 for SSL
+    
+    logDebug("Starting email process with SMTP settings", [
+        'host' => $smtpHost,
+        'username' => $smtpUsername,
+        'port' => $smtpPort
+    ]);
+    
+    // Send confirmation email to the user using PHPMailer with SMTP
+    try {
+        $userMail = new PHPMailer(true);
+        
+        // Server settings
+        $userMail->SMTPDebug = 3;  // Set to 3 for detailed debug output
+        ob_start(); // Start output buffering to capture debug output
+        
+        $userMail->isSMTP();
+        $userMail->Host       = $smtpHost;
+        $userMail->SMTPAuth   = true;
+        $userMail->Username   = $smtpUsername;
+        $userMail->Password   = $smtpPassword;
+        $userMail->Port       = $smtpPort;
+        $userMail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;  // Use PHPMailer::ENCRYPTION_STARTTLS or PHPMailer::ENCRYPTION_SMTPS
+        
+        // Recipients
+        $userMail->setFrom('contact@eazyhaven.com', 'EazyHaven');
+        $userMail->addAddress($email, $name);
+        
+        // Content
+        $userMail->isHTML(true);
+        $userMail->Subject = "Thank you for contacting EazyHaven";
+        $userMail->Body = "
+        <html>
+        <head>
+            <title>Thank You for Contacting EazyHaven</title>
+        </head>
+        <body>
+            <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
+                <div style='background-color: #86198f; padding: 20px; color: white; text-align: center;'>
+                    <h1>Thank You for Contacting Us!</h1>
+                </div>
+                <div style='padding: 20px; background-color: #f9f9f9;'>
+                    <p>Dear $name,</p>
+                    <p>Thank you for reaching out to EazyHaven. We have received your message and will get back to you as soon as possible.</p>
+                    <p>Here's a summary of your submission:</p>
+                    <ul>
+                        <li><strong>Name:</strong> $name</li>
+                        <li><strong>Email:</strong> $email</li>
+                        <li><strong>Subject:</strong> $subject</li>
+                        <li><strong>Message:</strong> $message</li>
+                    </ul>
+                    <p>We appreciate your interest in EazyHaven and look forward to connecting with you.</p>
     }
 
     // SMTP Email Configuration
