@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // hCaptcha verification request
-    $hcaptchaSecretKey = 'ES_dba4b289340e45ea8a7bca4bc297a086'; // Your hCaptcha secret key
+    $hcaptchaSecretKey = 'ES_dba4b289340e45ea8a7bca4bc297a086'; // Replace with your actual hCaptcha secret key
     $verifyUrl = 'https://hcaptcha.com/siteverify';
     
     $data = [
@@ -67,8 +67,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $verifyResponse = file_get_contents($verifyUrl, false, $context);
     $responseData = json_decode($verifyResponse);
 
+    // For debugging
+    error_log('hCaptcha response: ' . print_r($responseData, true));
+
     // If hCaptcha verification fails
-    if (!$responseData->success) {
+    if (!$responseData || !$responseData->success) {
         http_response_code(400);
         echo json_encode(['status' => 'error', 'message' => 'CAPTCHA verification failed. Please try again.']);
         exit;
@@ -119,7 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $userMail->Username   = $smtpUsername;
         $userMail->Password   = $smtpPassword;
         $userMail->Port       = $smtpPort;
-        $userMail->SMTPSecure = 'ssl';  // Use 'tls' or 'ssl'
+        $userMail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;  // Use PHPMailer::ENCRYPTION_STARTTLS or PHPMailer::ENCRYPTION_SMTPS
         
         // Recipients
         $userMail->setFrom('contact@eazyhaven.com', 'EazyHaven');
@@ -171,10 +174,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $adminMail->Username   = $smtpUsername;
         $adminMail->Password   = $smtpPassword;
         $adminMail->Port       = $smtpPort;
-        $adminMail->SMTPSecure = 'ssl';
+        $adminMail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
         
         // Recipients
-        $adminMail->setFrom('no-reply@eazyhaven.com', 'EazyHaven Website');
+        $adminMail->setFrom('contact@eazyhaven.com', 'EazyHaven Website');
         $adminMail->addAddress('contact@eazyhaven.com', 'EazyHaven Contact');
         $adminMail->addReplyTo($email, $name);
         
@@ -225,7 +228,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         // Return a user-friendly error
         http_response_code(500);
-        echo json_encode(['status' => 'error', 'message' => 'Could not send email. Please try again later.']);
+        echo json_encode(['status' => 'error', 'message' => 'Could not send email. Error: ' . $e->getMessage()]);
         exit;
     }
 } else {

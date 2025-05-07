@@ -18,7 +18,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const email = document.getElementById('email').value;
             const subject = document.getElementById('subject').value;
             const message = document.getElementById('message').value;
-            const hcaptchaResponse = document.querySelector('textarea[name="h-captcha-response"]').value;
+            
+            // Fix: Get hCaptcha response properly
+            const hcaptchaResponse = hcaptcha.getResponse();
             
             // Form validation
             if (!name || !email || !message) {
