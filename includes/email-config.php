@@ -1,7 +1,8 @@
 <?php
 // Email configuration constants
 define('SMTP_HOST', 'smtp.hostinger.com'); // Replace with actual SMTP host
-define('SMTP_USER', 'no-reply@eazyhaven.com'); // Replace with actual email
+define('SMTP_USERNAME', 'no-reply@eazyhaven.com'); // Replace with actual email
+define('SMTP_USER', null);
 define('SMTP_PASSWORD', 'E@$Y#@ven2025'); // Replace with actual password
 define('SMTP_PORT', 465); // Use 587 for TLS or 465 for SSL
 define('SMTP_SECURE', 'ssl'); // Use 'ssl' for port 465
