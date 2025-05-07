@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     
                     <!-- hCaptcha Widget - Simplified Approach -->
                     <div class="mb-6 flex justify-center">
-                        <div class="h-captcha" data-sitekey="<?php echo c566f5b6-6c1c-4a3e-9834-6ecefaf27a5a; ?>"></div>
+                        <div class="h-captcha" data-sitekey="<?php echo HCAPTCHA_SITE_KEY; ?>"></div>
                     </div>
                     
                     <div class="text-center">
