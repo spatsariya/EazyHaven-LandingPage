@@ -43,9 +43,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                   id="message" name="message" rows="4" placeholder="Your message" required></textarea>
                     </div>
                     
-                    <!-- hCaptcha Widget - Simplified Approach -->
+                    <!-- hCaptcha Widget with direct site key -->
                     <div class="mb-6 flex justify-center">
-                        <div class="h-captcha" data-sitekey="<?php echo HCAPTCHA_SITE_KEY; ?>"></div>
+                        <div class="h-captcha" data-sitekey="3bc89a1c-d826-43ba-822a-d7d85e442cbe"></div>
                     </div>
                     
                     <div class="text-center">
