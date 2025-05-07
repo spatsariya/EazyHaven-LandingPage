@@ -2,6 +2,13 @@
 /**
  * Contact section component for EazyHaven
  */
+
+// Add PHP processing for server-side form handling
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Include the send-mail.php script
+    include_once('../send-mail.php');
+    exit; // Stop execution after processing the form
+}
 ?>
 <!-- Contact Form Section -->
 <section id="contact" class="py-20 bg-dark">
