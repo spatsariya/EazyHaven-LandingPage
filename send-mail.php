@@ -167,11 +167,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
             
             // Add fallback to HELO if EHLO fails
-            $smtpInstance = $mail->getSMTPInstance();
-            if (!$smtpInstance->hello(gethostname())) {
+            if (!$mail->smtp->hello(gethostname())) {
                 logDebug("EHLO failed, attempting HELO");
-                if (!$smtpInstance->sendCommand('HELO', 'HELO ' . gethostname(), 250)) {
-                    throw new Exception('SMTP HELO failed: ' . $smtpInstance->getError()['error']);
+                if (!$mail->smtp->sendCommand('HELO', 'HELO ' . gethostname(), 250)) {
+                    throw new Exception('SMTP HELO failed: ' . $mail->smtp->getError()['error']);
                 }
             }
             
