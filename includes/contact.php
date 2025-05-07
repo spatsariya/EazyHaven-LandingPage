@@ -12,7 +12,7 @@
         </div>
         <div class="max-w-3xl mx-auto">
             <div class="glass-card rounded-lg shadow-lg p-8 neon-border">
-                <form id="contactForm">
+                <form action="send-mail.php" method="POST" id="contactForm">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                         <div>
                             <label class="block text-sm font-medium mb-2 text-gray-300" for="name">Full Name</label>
