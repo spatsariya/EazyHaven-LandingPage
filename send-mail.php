@@ -120,8 +120,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $mail = new PHPMailer(true); // true enables exceptions
             
             // Debug settings
-            $mail->SMTPDebug = 3;
-            $mail->Debugoutput = function($str, $level) {
+            $mail->SMTPDebug = SMTP::DEBUG_SERVER; // Set to DEBUG_OFF in production
+            $mail->Debugoutput = function ($str, $level) {
                 logDebug("PHPMailer debug [$level]", $str);
             };
             
@@ -131,28 +131,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $mail->SMTPAuth = true;
             $mail->Username = SMTP_USER;
             $mail->Password = SMTP_PASSWORD;
-            
-            // Change from ENCRYPTION_SMTPS to explicit 'ssl' string for better compatibility
             $mail->SMTPSecure = SMTP_SECURE;
             $mail->Port = SMTP_PORT;
             
             // Set timeout to prevent long waits
             $mail->Timeout = 10;
             
-            // Add extra options that can help with Hostinger
+            // Add extra options for compatibility
             $mail->SMTPOptions = [
                 'ssl' => [
                     'verify_peer' => false,
                     'verify_peer_name' => false,
-                    'allow_self_signed' => true
-                ]
+                    'allow_self_signed' => true,
+                ],
             ];
             
             logDebug("SMTP settings configured", [
                 'host' => SMTP_HOST,
                 'port' => SMTP_PORT,
                 'secure' => SMTP_SECURE,
-                'username' => SMTP_USER
+                'username' => SMTP_USER,
             ]);
             
             // Sender and recipient
@@ -220,6 +218,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
         } catch (Exception $e) {
             logDebug("Failed to send email", $e->getMessage() . " - " . (isset($mail) ? $mail->ErrorInfo : 'No mailer instance'));
+            http_response_code(500);
+            echo json_encode(['status' => 'error', 'message' => 'Failed to send email. Please try again later.']);
+            exit;
         }
         
     } catch (Exception $e) {
