@@ -111,14 +111,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Continue processing email in the background
         logDebug("Attempting email in background");
         
-        // Enhance debugging and ensure proper SMTP command handling
+        // Force a valid hostname in the EHLO command and increase timeout
         function sendEmailViaSMTP($to, $subject, $body, $from, $fromName, $replyTo) {
             $smtpHost = SMTP_HOST;
             $smtpPort = SMTP_PORT;
             $smtpUser = SMTP_USER;
             $smtpPass = SMTP_PASSWORD;
 
-            $socket = fsockopen($smtpHost, $smtpPort, $errno, $errstr, 30);
+            $socket = fsockopen($smtpHost, $smtpPort, $errno, $errstr, 60); // Increased timeout to 60 seconds
             if (!$socket) {
                 logDebug("Failed to connect to SMTP server: $errstr ($errno)");
                 throw new Exception("Failed to connect to SMTP server: $errstr ($errno)");
@@ -137,14 +137,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $initialResponse = fgets($socket, 512);
             logDebug("Initial server response", $initialResponse);
 
-            // Send EHLO
-            sendCommand($socket, "EHLO " . gethostname(), 250);
+            // Send EHLO with a valid domain name
+            $validHostname = 'smtp.hostinger.com'; // Replace with your domain name
+            sendCommand($socket, "EHLO $validHostname", 250);
 
             // Start TLS if required
             if (SMTP_SECURE === 'tls') {
                 sendCommand($socket, "STARTTLS", 220);
                 stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT);
-                sendCommand($socket, "EHLO " . gethostname(), 250);
+                sendCommand($socket, "EHLO $validHostname", 250);
             }
 
             // Authenticate
