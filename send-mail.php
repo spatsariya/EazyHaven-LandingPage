@@ -36,6 +36,11 @@ function logDebug($message, $data = null) {
     file_put_contents($logFile, $logMessage . "\n", FILE_APPEND);
 }
 
+// Add a basic email validation function to bypass the missing dependency
+function isValidEmail($email) {
+    return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
+}
+
 // Log the request method and raw POST data for debugging
 logDebug("Request method", $_SERVER['REQUEST_METHOD']);
 logDebug("Raw POST data", file_get_contents('php://input'));
@@ -67,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    if (!isValidEmail($email)) {
         logDebug("Validation failed - invalid email: $email");
         ob_end_clean();
         http_response_code(400);
