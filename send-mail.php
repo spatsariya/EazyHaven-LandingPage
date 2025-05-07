@@ -134,9 +134,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Server settings
             if (method_exists($mail, 'isSMTP')) {
                 $mail->isSMTP(); // Use isSMTP() only if it exists
+                logDebug("isSMTP() method called successfully");
             } else {
-                throw new Exception("PHPMailer version does not support isSMTP()");
+                logDebug("isSMTP() method not available in PHPMailer version");
+                // Manually configure SMTP settings if isSMTP() is unavailable
+                $mail->Mailer = 'smtp';
             }
+            
             $mail->Host = SMTP_HOST;
             $mail->SMTPAuth = true;
             $mail->Username = SMTP_USER;
