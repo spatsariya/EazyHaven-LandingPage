@@ -3,6 +3,13 @@
 require_once 'includes/email-config.php';
 require_once 'lib/swift_required.php';
 
+// Ensure email-config.php is included and constants are defined
+if (!defined('SMTP_USERNAME') || !defined('SMTP_PASSWORD') || !defined('SMTP_HOST') || !defined('SMTP_PORT') || !defined('SMTP_SECURE')) {
+    http_response_code(500);
+    echo json_encode(['status' => 'error', 'message' => 'Email configuration is missing. Please check email-config.php.']);
+    exit;
+}
+
 // Set headers for API response
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST');
