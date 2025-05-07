@@ -6,6 +6,15 @@ header('Access-Control-Allow-Headers: Content-Type');
 header('Content-Type: application/json');
 header('Cache-Control: no-cache, no-store, must-revalidate');
 
+// Enable detailed error reporting (only for debugging, remove in production)
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+// Create a debug log file
+$logFile = 'debug_log.txt';
+file_put_contents($logFile, "Form submission received at " . date('Y-m-d H:i:s') . "\n", FILE_APPEND);
+
 // Include PHPMailer classes
 require_once 'includes/PHPMailer/Exception.php';
 require_once 'includes/PHPMailer/PHPMailer.php';
@@ -16,8 +25,21 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
+// Function to log data to the debug file
+function logDebug($message, $data = null) {
+    global $logFile;
+    $logMessage = date('Y-m-d H:i:s') . " - $message";
+    if ($data !== null) {
+        $logMessage .= ": " . print_r($data, true);
+    }
+    file_put_contents($logFile, $logMessage . "\n", FILE_APPEND);
+}
+
 // Check if the request is a POST request
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Log received POST data
+    logDebug("POST data received", $_POST);
+    
     // Get and sanitize form data
     $name = filter_var($_POST['name'] ?? '', FILTER_SANITIZE_STRING);
     $email = filter_var($_POST['email'] ?? '', FILTER_SANITIZE_EMAIL);
@@ -25,14 +47,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $message = filter_var($_POST['message'] ?? '', FILTER_SANITIZE_STRING);
     $hcaptchaResponse = $_POST['h-captcha-response'] ?? '';
     
+    logDebug("Sanitized form data", [
+        'name' => $name,
+        'email' => $email,
+        'subject' => $subject,
+        'message' => substr($message, 0, 30) . '...',
+        'hcaptchaResponse' => !empty($hcaptchaResponse) ? 'provided' : 'missing'
+    ]);
+    
     // Validate form data
     if (empty($name) || empty($email) || empty($message)) {
+        logDebug("Form validation failed - missing required fields");
         http_response_code(400);
         echo json_encode(['status' => 'error', 'message' => 'Please fill in all required fields']);
         exit;
     }
     
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        logDebug("Form validation failed - invalid email: $email");
         http_response_code(400);
         echo json_encode(['status' => 'error', 'message' => 'Invalid email address']);
         exit;
@@ -40,13 +72,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Verify hCaptcha
     if (empty($hcaptchaResponse)) {
+        logDebug("Form validation failed - missing hCaptcha response");
         http_response_code(400);
         echo json_encode(['status' => 'error', 'message' => 'Please complete the CAPTCHA verification']);
         exit;
     }
 
     // hCaptcha verification request
-    $hcaptchaSecretKey = 'ES_dba4b289340e45ea8a7bca4bc297a086'; // Replace with your actual hCaptcha secret key
+    $hcaptchaSecretKey = '0x2fAFFcd63EA2951a86FEdcAe53de4c6a4A3C666'; // IMPORTANT: Replace with your actual hCaptcha secret key
     $verifyUrl = 'https://hcaptcha.com/siteverify';
     
     $data = [
@@ -54,6 +87,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'response' => $hcaptchaResponse,
         'remoteip' => $_SERVER['REMOTE_ADDR']
     ];
+
+    logDebug("Verifying hCaptcha with data", $data);
 
     $options = [
         'http' => [
@@ -64,14 +99,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ];
 
     $context = stream_context_create($options);
-    $verifyResponse = file_get_contents($verifyUrl, false, $context);
-    $responseData = json_decode($verifyResponse);
-
-    // For debugging
-    error_log('hCaptcha response: ' . print_r($responseData, true));
+    
+    try {
+        $verifyResponse = file_get_contents($verifyUrl, false, $context);
+        $responseData = json_decode($verifyResponse);
+        logDebug("hCaptcha verification response", $responseData);
+    } catch (Exception $e) {
+        logDebug("hCaptcha verification failed with exception", $e->getMessage());
+        http_response_code(500);
+        echo json_encode(['status' => 'error', 'message' => 'CAPTCHA verification service unavailable']);
+        exit;
+    }
 
     // If hCaptcha verification fails
     if (!$responseData || !$responseData->success) {
+        logDebug("hCaptcha verification failed with response", $responseData);
         http_response_code(400);
         echo json_encode(['status' => 'error', 'message' => 'CAPTCHA verification failed. Please try again.']);
         exit;
@@ -80,7 +122,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Create directory if it doesn't exist
     $directory = 'data';
     if (!file_exists($directory)) {
-        mkdir($directory, 0755, true);
+        if (!mkdir($directory, 0755, true)) {
+            logDebug("Failed to create directory: $directory");
+            http_response_code(500);
+            echo json_encode(['status' => 'error', 'message' => 'Server configuration error. Please try again later.']);
+            exit;
+        }
     }
     
     // Define the CSV file path
@@ -89,20 +136,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Check if file exists, if not create with headers
     $fileExists = file_exists($csvFile);
     
-    // Open the CSV file for appending
-    $handle = fopen($csvFile, 'a');
-    
-    // If the file is new, add headers
-    if (!$fileExists) {
-        fputcsv($handle, ['Name', 'Email', 'Subject', 'Message', 'Timestamp']);
+    try {
+        // Open the CSV file for appending
+        $handle = fopen($csvFile, 'a');
+        
+        if (!$handle) {
+            throw new Exception("Could not open file: $csvFile");
+        }
+        
+        // If the file is new, add headers
+        if (!$fileExists) {
+            fputcsv($handle, ['Name', 'Email', 'Subject', 'Message', 'Timestamp']);
+        }
+        
+        // Write the data to the CSV file
+        $timestamp = date('Y-m-d H:i:s');
+        fputcsv($handle, [$name, $email, $subject, $message, $timestamp]);
+        
+        // Close the file
+        fclose($handle);
+        
+        logDebug("Form data saved to CSV file");
+    } catch (Exception $e) {
+        logDebug("Failed to save data to CSV: " . $e->getMessage());
+        // Continue processing - don't exit here as we still want to try sending emails
     }
-    
-    // Write the data to the CSV file
-    $timestamp = date('Y-m-d H:i:s');
-    fputcsv($handle, [$name, $email, $subject, $message, $timestamp]);
-    
-    // Close the file
-    fclose($handle);
 
     // SMTP Email Configuration
     $smtpHost = 'smtp.hostinger.com';  // Replace with your SMTP server
@@ -110,12 +168,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $smtpPassword = 'E@$Y#@ven2025';  // Replace with your actual email password
     $smtpPort = 465;  // Usually 587 for TLS or 465 for SSL
     
+    logDebug("Starting email process with SMTP settings", [
+        'host' => $smtpHost,
+        'username' => $smtpUsername,
+        'port' => $smtpPort
+    ]);
+    
     // Send confirmation email to the user using PHPMailer with SMTP
     try {
         $userMail = new PHPMailer(true);
         
         // Server settings
-        $userMail->SMTPDebug = 0;  // Set to 0 for no debug output, 1 or 2 for debug output
+        $userMail->SMTPDebug = 3;  // Set to 3 for detailed debug output
+        ob_start(); // Start output buffering to capture debug output
+        
         $userMail->isSMTP();
         $userMail->Host       = $smtpHost;
         $userMail->SMTPAuth   = true;
@@ -162,60 +228,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </html>";
         
         $userMail->send();
+        $debugOutput = ob_get_clean(); // Get the debug output and stop buffering
+        logDebug("User confirmation email sent successfully. Debug output:", $debugOutput);
         
-        // Send notification to admin
-        $adminMail = new PHPMailer(true);
-        
-        // Server settings (same as above)
-        $adminMail->SMTPDebug = 0;
-        $adminMail->isSMTP();
-        $adminMail->Host       = $smtpHost;
-        $adminMail->SMTPAuth   = true;
-        $adminMail->Username   = $smtpUsername;
-        $adminMail->Password   = $smtpPassword;
-        $adminMail->Port       = $smtpPort;
-        $adminMail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-        
-        // Recipients
-        $adminMail->setFrom('contact@eazyhaven.com', 'EazyHaven Website');
-        $adminMail->addAddress('contact@eazyhaven.com', 'EazyHaven Contact');
-        $adminMail->addReplyTo($email, $name);
-        
-        // Optionally CC to support email
-        $supportEmail = "support@eazyhaven.com";
-        if ($supportEmail != 'contact@eazyhaven.com') {
-            $adminMail->addCC($supportEmail, 'EazyHaven Support');
-        }
-        
-        // Content
-        $adminMail->isHTML(true);
-        $adminMail->Subject = "New Contact Form Submission from $name";
-        $adminMail->Body = "
-        <html>
-        <head>
-            <title>New Contact Form Submission</title>
-        </head>
-        <body>
-            <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
-                <div style='background-color: #86198f; padding: 20px; color: white; text-align: center;'>
-                    <h1>New Contact Form Submission</h1>
-                </div>
-                <div style='padding: 20px; background-color: #f9f9f9;'>
-                    <p>You have received a new contact form submission with the following details:</p>
-                    <ul>
-                        <li><strong>Name:</strong> $name</li>
-                        <li><strong>Email:</strong> $email</li>
-                        <li><strong>Subject:</strong> $subject</li>
-                        <li><strong>Message:</strong> $message</li>
-                        <li><strong>Submitted:</strong> $timestamp</li>
-                    </ul>
-                    <p>Please respond to this inquiry as soon as possible.</p>
-                </div>
-            </div>
-        </body>
-        </html>";
-        
-        $adminMail->send();
+        // Skip admin email for now to simplify debugging
+        logDebug("Skipping admin email for debugging");
         
         // Return a success response
         http_response_code(200);
@@ -223,16 +240,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
         
     } catch (Exception $e) {
+        $debugOutput = ob_get_clean(); // Get the debug output and stop buffering
+        
         // Log the error for debugging
-        error_log("Mailer Error: " . $e->getMessage());
+        logDebug("Mailer Error: " . $e->getMessage());
+        logDebug("SMTP Debug Output: " . $debugOutput);
         
         // Return a user-friendly error
         http_response_code(500);
-        echo json_encode(['status' => 'error', 'message' => 'Could not send email. Error: ' . $e->getMessage()]);
+        echo json_encode([
+            'status' => 'error', 
+            'message' => 'Could not send email. Please try again later.',
+            'debug' => 'Error: ' . $e->getMessage()
+        ]);
         exit;
     }
 } else {
     // If not a POST request, return an error
+    logDebug("Invalid request method: " . $_SERVER['REQUEST_METHOD']);
     http_response_code(405);
     echo json_encode(['status' => 'error', 'message' => 'Method not allowed']);
     exit;

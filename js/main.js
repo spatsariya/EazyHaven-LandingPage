@@ -19,8 +19,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const subject = document.getElementById('subject').value;
             const message = document.getElementById('message').value;
             
-            // Fix: Get hCaptcha response properly
+            // Get hCaptcha response
             const hcaptchaResponse = hcaptcha.getResponse();
+            
+            console.log('Form submission data:', { name, email, subject, message: message.substring(0, 20) + '...', captchaResponse: hcaptchaResponse ? 'provided' : 'missing' });
             
             // Form validation
             if (!name || !email || !message) {
@@ -58,8 +60,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.json().catch(e => {
+                    console.error('JSON parse error:', e);
+                    throw new Error('Invalid JSON response from server');
+                });
+            })
             .then(data => {
+                console.log('Server response:', data);
                 if (data.status === 'success') {
                     showContactMessage(data.message, 'success');
                     contactForm.reset();
@@ -75,6 +84,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }, 2000);
                 } else {
                     showContactMessage(data.message || 'There was an error sending your message.', 'error');
+                    console.error('Form submission error:', data);
                     
                     // Reset hCaptcha
                     if (typeof hcaptcha !== 'undefined') {
@@ -83,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
+                console.error('Form submission error:', error);
                 showContactMessage('There was an error sending your message. Please try again later.', 'error');
                 
                 // Reset hCaptcha
