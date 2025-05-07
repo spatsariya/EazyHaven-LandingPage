@@ -32,18 +32,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
+            // Get hCaptcha response token
+            const hcaptchaResponse = document.querySelector('[name="h-captcha-response"]')?.value;
+            
+            // Check if hCaptcha was completed
+            if (!hcaptchaResponse) {
+                showContactMessage('Please complete the captcha verification.', 'error');
+                return;
+            }
+            
             // Disable the submit button and show loading state
             const submitButton = document.getElementById('submitButton');
             const originalButtonText = submitButton.textContent;
             submitButton.disabled = true;
             submitButton.textContent = 'Sending...';
             
-            // Create FormData object
-            const formData = new FormData();
-            formData.append('name', name);
-            formData.append('email', email);
-            formData.append('subject', subject);
-            formData.append('message', message);
+            // Use the form element directly to capture all fields including hCaptcha
+            const formData = new FormData(contactForm);
             
             // Use fetch API to submit form - Using the new send-mail.php endpoint
             fetch('send-mail.php', {
@@ -67,18 +72,28 @@ document.addEventListener('DOMContentLoaded', function() {
                     showContactMessage(data.message, 'success');
                     contactForm.reset();
                     
-                    // Removed the redirection to thank-you.html
-                    // setTimeout(() => {
-                    //     window.location.href = 'thank-you.html';
-                    // }, 2000);
+                    // Reset hCaptcha
+                    if (window.hcaptcha) {
+                        window.hcaptcha.reset();
+                    }
                 } else {
                     showContactMessage(data.message || 'There was an error sending your message.', 'error');
                     console.error('Form submission error:', data);
+                    
+                    // Reset hCaptcha on error
+                    if (window.hcaptcha) {
+                        window.hcaptcha.reset();
+                    }
                 }
             })
             .catch(error => {
                 console.error('Form submission error:', error);
                 showContactMessage('There was an error sending your message. Please try again later.', 'error');
+                
+                // Reset hCaptcha on error
+                if (window.hcaptcha) {
+                    window.hcaptcha.reset();
+                }
             })
             .finally(() => {
                 // Re-enable the submit button
@@ -161,25 +176,23 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Email validation function
     function validateEmail(email) {
-        const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         return re.test(String(email).toLowerCase());
     }
     
     // Message display function
     function showMessage(element, message, type) {
         element.textContent = message;
-        element.classList.add('show');
+        element.classList.remove('text-green-400', 'text-red-400');
+        element.classList.add(type === 'success' ? 'text-green-400' : 'text-red-400');
+        element.classList.remove('hidden');
         
-        if (type === 'success') {
-            element.className = 'form-message show bg-green-800 text-white rounded-lg';
-        } else {
-            element.className = 'form-message show bg-red-800 text-white rounded-lg';
+        // Hide the message after 5 seconds if it's an error
+        if (type === 'error') {
+            setTimeout(() => {
+                element.classList.add('hidden');
+            }, 5000);
         }
-        
-        // Hide message after 5 seconds
-        setTimeout(() => {
-            element.classList.remove('show');
-        }, 5000);
     }
 
     // Smooth scrolling for anchor links
