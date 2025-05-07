@@ -1,4 +1,3 @@
-
 <?php
 require 'PHPMailer/PHPMailer.php';
 require 'PHPMailer/SMTP.php';
@@ -6,6 +5,9 @@ require 'PHPMailer/Exception.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
+
+// Set the content type to JSON
+header('Content-Type: application/json');
 
 $mail = new PHPMailer(true);
 
@@ -32,7 +34,11 @@ try {
         <strong>Message:</strong><br>" . nl2br($_POST['message']);
 
     $mail->send();
-    echo "Message sent!";
+    
+    // Return success JSON response
+    echo json_encode(['status' => 'success', 'message' => 'Your message has been received. Thank you for contacting us!']);
 } catch (Exception $e) {
-    echo "Failed to send. Error: {$mail->ErrorInfo}";
+    // Return error JSON response
+    http_response_code(500);
+    echo json_encode(['status' => 'error', 'message' => 'Failed to send email. Please try again later.']);
 }
